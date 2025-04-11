@@ -13,6 +13,7 @@
 migrate_working_dir/
 .env
 node_modules/
+to-do-list.txt
 
 # IntelliJ related
 *.iml

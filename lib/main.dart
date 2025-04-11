@@ -5,6 +5,9 @@ import 'screens/home_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/sell_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/login_screen.dart';
+import 'services/auth_service.dart';
+import 'services/api_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,34 +18,40 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Marketplace',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          primary: Colors.blue,
-          secondary: Colors.blue.shade200,
-          surface: Colors.white,
-          onPrimary: Colors.white,
-          onSecondary: Colors.white,
-          onSurfaceVariant: Colors.black87,
-          onSurface: Colors.black87,
+    return MultiProvider(
+      providers: [
+        Provider(create: (_) => AuthService()),
+        Provider(create: (_) => ApiService()),
+      ],
+      child: MaterialApp(
+        title: 'Marketplace',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            primary: Colors.blue,
+            secondary: Colors.blue.shade200,
+            surface: Colors.white,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurfaceVariant: Colors.black87,
+            onSurface: Colors.black87,
+          ),
+          useMaterial3: true,
+          textTheme: GoogleFonts.poppinsTextTheme(),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            backgroundColor: Colors.white,
+            selectedItemColor: Colors.blue,
+            unselectedItemColor: Colors.black,
+            elevation: 0,
+          ),
         ),
-        useMaterial3: true,
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.black,
-          elevation: 0,
-        ),
+        home: const MainScreen(),
       ),
-      home: const MainScreen(),
     );
   }
 }
@@ -56,6 +65,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  bool _isLoading = true;
+  bool _isLoggedIn = false;
 
   final List<Widget> _screens = [
     const HomeScreen(),
@@ -65,9 +76,40 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final isLoggedIn = await authService.isLoggedIn();
+    
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = isLoggedIn;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // If not logged in, show login screen instead of the selected screen
+    final currentScreen = _selectedIndex == 2 && !_isLoggedIn || _selectedIndex == 3 && !_isLoggedIn
+        ? const LoginScreen()
+        : _screens[_selectedIndex];
+
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: currentScreen,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {

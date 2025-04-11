@@ -1,32 +1,30 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 
 class ApiService {
   static const String baseUrl = 'http://10.0.2.2:3000/api'; // Use 10.0.2.2 for Android emulator
-  static const Duration timeout = Duration(seconds: 10);
+  static const Duration timeout = Duration(seconds: 30);
 
   // Test database connection
   Future<Map<String, dynamic>> testConnection() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/test-connection'),
+        Uri.parse('$baseUrl/test'),
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        throw _handleError(response.statusCode);
+        throw Exception('Failed to test connection: ${response.statusCode}');
       }
-    } on http.ClientException catch (e) {
-      throw 'Connection error: Please check if the server is running and accessible';
-    } on FormatException catch (e) {
-      throw 'Invalid response format from server';
+    } on http.ClientException {
+      throw Exception('Connection test timed out. Please check your internet connection and try again.');
+    } on SocketException {
+      throw Exception('No internet connection. Please check your network and try again.');
     } catch (e) {
-      if (e.toString().contains('timeout')) {
-        throw 'Connection timeout: Server is taking too long to respond';
-      }
-      throw 'An unexpected error occurred: $e';
+      throw Exception('Failed to test connection: $e');
     }
   }
 
@@ -38,20 +36,17 @@ class ApiService {
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
-        final List<dynamic> jsonData = json.decode(response.body);
-        return jsonData.map((json) => Product.fromJson(json)).toList();
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Product.fromJson(json)).toList();
       } else {
-        throw _handleError(response.statusCode);
+        throw Exception('Failed to load products: ${response.statusCode}');
       }
-    } on http.ClientException catch (e) {
-      throw 'Connection error: Please check if the server is running and accessible';
-    } on FormatException catch (e) {
-      throw 'Invalid response format from server';
+    } on http.ClientException {
+      throw Exception('Request timed out. Please check your internet connection and try again.');
+    } on SocketException {
+      throw Exception('No internet connection. Please check your network and try again.');
     } catch (e) {
-      if (e.toString().contains('timeout')) {
-        throw 'Connection timeout: Server is taking too long to respond';
-      }
-      throw 'An unexpected error occurred: $e';
+      throw Exception('Failed to load products: $e');
     }
   }
 
@@ -80,12 +75,12 @@ class ApiService {
   }
 
   // Create new product
-  Future<Product> createProduct(Map<String, dynamic> productData) async {
+  Future<Product> createProduct(Product product) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/products'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(productData),
+        body: json.encode(product.toJson()),
       ).timeout(timeout);
 
       if (response.statusCode == 201) {
@@ -102,6 +97,24 @@ class ApiService {
         throw 'Connection timeout: Server is taking too long to respond';
       }
       throw 'An unexpected error occurred: $e';
+    }
+  }
+
+  Future<Product> updateProduct(Product product) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/products/${product.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(product.toJson()),
+      ).timeout(timeout);
+
+      if (response.statusCode == 200) {
+        return Product.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to update product');
+      }
+    } catch (e) {
+      throw Exception('Error updating product: $e');
     }
   }
 

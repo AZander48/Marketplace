@@ -6,12 +6,12 @@ INSERT INTO users (username, email, password_hash) VALUES
 ('sarah_jones', 'sarah@example.com', 'hashed_password_4');
 
 -- Insert sample products
-INSERT INTO products (user_id, title, description, price, category, condition, location) VALUES
-(1, 'iPhone 13 Pro', 'Like new iPhone 13 Pro 256GB, used for 6 months', 799.99, 'Electronics', 'Like New', 'New York, NY'),
-(2, 'Vintage Leather Jacket', 'Authentic 1980s leather jacket, size M', 150.00, 'Clothing', 'Good', 'Los Angeles, CA'),
-(3, 'Coffee Table', 'Modern glass coffee table, 48x24 inches', 120.00, 'Furniture', 'Excellent', 'Chicago, IL'),
-(1, 'Nintendo Switch', 'Nintendo Switch with 2 controllers and 3 games', 250.00, 'Gaming', 'Good', 'New York, NY'),
-(4, 'Designer Handbag', 'Louis Vuitton Neverfull MM, authentic', 1200.00, 'Fashion', 'Like New', 'Miami, FL');
+INSERT INTO products (user_id, title, description, price, category, condition, location, image_url) VALUES
+(1, 'iPhone 13 Pro', 'Like new iPhone 13 Pro 256GB', 799.99, 'Electronics', 'Like New', 'New York, NY', 'https://example.com/iphone.jpg'),
+(2, 'Vintage Leather Jacket', 'Authentic 1980s leather jacket', 150.00, 'Clothing', 'Good', 'Los Angeles, CA', 'https://example.com/jacket.jpg'),
+(3, 'Coffee Table', 'Modern glass coffee table, 48x24 inches', 120.00, 'Furniture', 'Excellent', 'Chicago, IL', ''),
+(1, 'Nintendo Switch', 'Nintendo Switch with 2 controllers and 3 games', 250.00, 'Gaming', 'Good', 'New York, NY', ''),
+(4, 'Designer Handbag', 'Louis Vuitton Neverfull MM, authentic', 1200.00, 'Fashion', 'Like New', 'Miami, FL', '');
 
 -- Insert sample orders
 INSERT INTO orders (buyer_id, seller_id, product_id, status) VALUES

@@ -23,6 +23,7 @@ CREATE TABLE products (
     category VARCHAR(50),
     condition VARCHAR(50),
     location VARCHAR(255),
+    image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

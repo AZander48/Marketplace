@@ -2,25 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/image_service.dart';
-import '../services/auth_service.dart';
 import '../models/product.dart';
-import 'login_screen.dart';
 
-class SellScreen extends StatefulWidget {
-  final Product? product; // If null, we're adding a new product
-  final bool isViewOnly; // If true, we're just viewing the product
-
-  const SellScreen({
-    Key? key,
-    this.product,
-    this.isViewOnly = false,
-  }) : super(key: key);
+class AddProductScreen extends StatefulWidget {
+  const AddProductScreen({Key? key}) : super(key: key);
 
   @override
-  _SellScreenState createState() => _SellScreenState();
+  _AddProductScreenState createState() => _AddProductScreenState();
 }
 
-class _SellScreenState extends State<SellScreen> {
+class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -30,20 +21,6 @@ class _SellScreenState extends State<SellScreen> {
   final _locationController = TextEditingController();
   String? _imageUrl;
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.product != null) {
-      _titleController.text = widget.product!.title;
-      _descriptionController.text = widget.product!.description;
-      _priceController.text = widget.product!.price.toString();
-      _categoryController.text = widget.product!.category;
-      _conditionController.text = widget.product!.condition;
-      _locationController.text = widget.product!.location;
-      _imageUrl = widget.product!.imageUrl;
-    }
-  }
 
   @override
   void dispose() {
@@ -81,26 +58,19 @@ class _SellScreenState extends State<SellScreen> {
     
     try {
       final product = Product(
-        id: widget.product?.id ?? 0,
+        id: 0, // Will be set by the server
         title: _titleController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
         imageUrl: _imageUrl,
-        userId: widget.product?.userId ?? 1, // TODO: Get from authentication
+        userId: 1, // TODO: Get from authentication
         category: _categoryController.text,
         condition: _conditionController.text,
         location: _locationController.text,
       );
 
       final apiService = Provider.of<ApiService>(context, listen: false);
-      
-      if (widget.product == null) {
-        // Creating a new product
-        await apiService.createProduct(product);
-      } else {
-        // Updating an existing product
-        await apiService.updateProduct(product);
-      }
+      await apiService.createProduct(product);
       
       if (mounted) {
         Navigator.pop(context);
@@ -108,7 +78,7 @@ class _SellScreenState extends State<SellScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error ${widget.product == null ? 'creating' : 'updating'} product: $e')),
+          SnackBar(content: Text('Error creating product: $e')),
         );
       }
     } finally {
@@ -122,28 +92,7 @@ class _SellScreenState extends State<SellScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isViewOnly 
-          ? 'View Product' 
-          : widget.product == null 
-            ? 'Add Product' 
-            : 'Edit Product'),
-        actions: [
-          if (widget.isViewOnly && widget.product != null)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SellScreen(
-                      product: widget.product,
-                      isViewOnly: false,
-                    ),
-                  ),
-                );
-              },
-            ),
-        ],
+        title: const Text('Add New Product'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -154,7 +103,6 @@ class _SellScreenState extends State<SellScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
-                enabled: !widget.isViewOnly,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
@@ -166,7 +114,6 @@ class _SellScreenState extends State<SellScreen> {
                 controller: _descriptionController,
                 decoration: const InputDecoration(labelText: 'Description'),
                 maxLines: 3,
-                enabled: !widget.isViewOnly,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -178,7 +125,6 @@ class _SellScreenState extends State<SellScreen> {
                 controller: _priceController,
                 decoration: const InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
-                enabled: !widget.isViewOnly,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a price';
@@ -192,7 +138,6 @@ class _SellScreenState extends State<SellScreen> {
               TextFormField(
                 controller: _categoryController,
                 decoration: const InputDecoration(labelText: 'Category'),
-                enabled: !widget.isViewOnly,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a category';
@@ -203,7 +148,6 @@ class _SellScreenState extends State<SellScreen> {
               TextFormField(
                 controller: _conditionController,
                 decoration: const InputDecoration(labelText: 'Condition'),
-                enabled: !widget.isViewOnly,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the condition';
@@ -214,7 +158,6 @@ class _SellScreenState extends State<SellScreen> {
               TextFormField(
                 controller: _locationController,
                 decoration: const InputDecoration(labelText: 'Location'),
-                enabled: !widget.isViewOnly,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the location';
@@ -229,22 +172,18 @@ class _SellScreenState extends State<SellScreen> {
                   height: 200,
                   fit: BoxFit.cover,
                 ),
-              if (!widget.isViewOnly) ...[
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _pickAndUploadImage,
-                  child: Text(_imageUrl == null ? 'Upload Image' : 'Change Image'),
-                ),
-              ],
-              if (!widget.isViewOnly) ...[
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submitForm,
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : Text(widget.product == null ? 'Create Product' : 'Update Product'),
-                ),
-              ],
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _pickAndUploadImage,
+                child: Text(_imageUrl == null ? 'Upload Image' : 'Change Image'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submitForm,
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Create Product'),
+              ),
             ],
           ),
         ),

@@ -7,6 +7,7 @@ class Product {
   final String category;
   final String condition;
   final String location;
+  final String? imageUrl;
 
   Product({
     required this.id,
@@ -17,6 +18,7 @@ class Product {
     required this.category,
     required this.condition,
     required this.location,
+    this.imageUrl,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Product {
       category: json['category'],
       condition: json['condition'],
       location: json['location'],
+      imageUrl: json['image_url'],
     );
   }
 
@@ -39,5 +42,18 @@ class Product {
       return double.tryParse(price) ?? 0.0;
     }
     return 0.0;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'price': price,
+      'image_url': imageUrl,
+      'user_id': userId,
+      'category': category,
+      'condition': condition,
+      'location': location,
+    };
   }
 } 
