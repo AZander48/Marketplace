@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/image_service.dart';
-import '../services/auth_service.dart';
 import '../models/product.dart';
-import 'login_screen.dart';
 
 class SellScreen extends StatefulWidget {
   final Product? product; // If null, we're adding a new product
   final bool isViewOnly; // If true, we're just viewing the product
 
   const SellScreen({
-    Key? key,
+    super.key,
     this.product,
     this.isViewOnly = false,
-  }) : super(key: key);
+  });
 
   @override
   _SellScreenState createState() => _SellScreenState();

@@ -8,6 +8,7 @@ import 'screens/profile_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
+import 'providers/auth_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         Provider(create: (_) => ApiService()),
       ],
       child: MaterialApp(
@@ -50,7 +51,11 @@ class MyApp extends StatelessWidget {
             elevation: 0,
           ),
         ),
-        home: const MainScreen(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const MainScreen(),
+          '/login': (context) => const LoginScreen(),
+        },
       ),
     );
   }
@@ -82,14 +87,15 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _checkAuth() async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final isLoggedIn = await authService.isLoggedIn();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    setState(() => _isLoading = true);
     
-    if (mounted) {
-      setState(() {
-        _isLoggedIn = isLoggedIn;
-        _isLoading = false;
-      });
+    try {
+      _isLoggedIn = authProvider.isLoggedIn;
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

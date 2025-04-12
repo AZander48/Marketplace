@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
+import '../providers/auth_provider.dart';
 import 'add_product_screen.dart';
+import 'sell_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -72,6 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Marketplace'),
@@ -90,10 +95,19 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddProductScreen()),
-          );
+          if (authProvider.isLoggedIn) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SellScreen()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please login to add a product'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         },
         child: const Icon(Icons.add),
       ),
@@ -205,14 +219,11 @@ class ProductCard extends StatelessWidget {
                         imageUrl: product.imageUrl!,
                         fit: BoxFit.cover,
                         placeholder: (context, url) {
-                          print('Loading image: $url');
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
                         },
                         errorWidget: (context, url, error) {
-                          print('Error loading image: $url');
-                          print('Error details: $error');
                           return const Center(
                             child: Icon(Icons.error, color: Colors.red),
                           );

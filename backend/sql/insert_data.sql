@@ -1,9 +1,12 @@
--- Insert sample users
+-- Enable pgcrypto extension for password hashing
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Insert sample users with properly hashed passwords
 INSERT INTO users (username, email, password_hash) VALUES
-('john_doe', 'john@example.com', 'hashed_password_1'),
-('jane_smith', 'jane@example.com', 'hashed_password_2'),
-('mike_wilson', 'mike@example.com', 'hashed_password_3'),
-('sarah_jones', 'sarah@example.com', 'hashed_password_4');
+('john_doe', 'john@example.com', crypt('password123', gen_salt('bf'))),
+('jane_smith', 'jane@example.com', crypt('password123', gen_salt('bf'))),
+('mike_wilson', 'mike@example.com', crypt('password123', gen_salt('bf'))),
+('sarah_jones', 'sarah@example.com', crypt('password123', gen_salt('bf')));
 
 -- Insert sample products
 INSERT INTO products (user_id, title, description, price, category, condition, location, image_url) VALUES

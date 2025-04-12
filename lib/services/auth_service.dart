@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
@@ -24,25 +25,34 @@ class AuthService {
   }
 
   // Login user
-  Future<User> login(String email, String password) async {
+  Future<User> login(String identifier, String password) async {
     try {
+      debugPrint('Attempting login with identifier: $identifier');
       final response = await http.post(
         Uri.parse('$baseUrl/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'email': email,
+          'identifier': identifier,
           'password': password,
         }),
       ).timeout(timeout);
 
+      debugPrint('Login response status: ${response.statusCode}');
+      debugPrint('Login response body: ${response.body}');
+
       if (response.statusCode == 200) {
-        final user = User.fromJson(json.decode(response.body));
+        final responseData = json.decode(response.body);
+        debugPrint('Decoded response: $responseData');
+        final user = User.fromJson(responseData);
         await _saveUser(user);
         return user;
       } else {
-        throw Exception('Failed to login');
+        final errorBody = json.decode(response.body);
+        debugPrint('Error response: $errorBody');
+        throw Exception(errorBody['message'] ?? 'Failed to login');
       }
     } catch (e) {
+      debugPrint('Login error: $e');
       throw Exception('Error logging in: $e');
     }
   }

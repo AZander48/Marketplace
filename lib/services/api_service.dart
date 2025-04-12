@@ -11,7 +11,7 @@ class ApiService {
   Future<Map<String, dynamic>> testConnection() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/test'),
+        Uri.parse('$baseUrl/test-connection'),
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
@@ -63,9 +63,11 @@ class ApiService {
         throw _handleError(response.statusCode);
       }
     } on http.ClientException catch (e) {
-      throw 'Connection error: Please check if the server is running and accessible';
+      throw """Connection error: Please check if the server is running and 
+        accessible:\n${e.message}""";
+
     } on FormatException catch (e) {
-      throw 'Invalid response format from server';
+      throw 'Invalid response format from server:\n${e.message}';
     } catch (e) {
       if (e.toString().contains('timeout')) {
         throw 'Connection timeout: Server is taking too long to respond';
@@ -89,7 +91,8 @@ class ApiService {
         throw _handleError(response.statusCode);
       }
     } on http.ClientException catch (e) {
-      throw 'Connection error: Please check if the server is running and accessible';
+      throw 'Connection error: Please check if the server is running '
+          'and accessible';
     } on FormatException catch (e) {
       throw 'Invalid response format from server';
     } catch (e) {

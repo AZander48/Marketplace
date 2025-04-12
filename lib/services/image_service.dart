@@ -51,11 +51,11 @@ class ImageService {
         final jsonData = json.decode(responseData);
         return jsonData['url']; // Return the URL from the response
       } else {
-        print('Failed to upload image: ${response.statusCode}');
+        // add error
         return null;
       }
     } catch (e) {
-      print('Error uploading image: $e');
+      // add error
       return null;
     }
   }

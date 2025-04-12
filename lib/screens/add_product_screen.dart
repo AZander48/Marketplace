@@ -5,7 +5,7 @@ import '../services/image_service.dart';
 import '../models/product.dart';
 
 class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({Key? key}) : super(key: key);
+  const AddProductScreen({super.key});
 
   @override
   _AddProductScreenState createState() => _AddProductScreenState();
