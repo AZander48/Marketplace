@@ -33,8 +33,38 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Search products
+router.get('/search', async (req, res) => {
+  try {
+    const { query } = req.query;
+    console.log('Search query:', query);
+
+    if (!query) {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    // Search in title, description, and location
+    const result = await pool.query(
+      `SELECT p.*, u.username as seller_name 
+       FROM products p 
+       JOIN users u ON p.user_id = u.id 
+       WHERE p.title ILIKE $1 
+       OR p.description ILIKE $1 
+       OR p.location ILIKE $1 
+       ORDER BY p.created_at DESC`,
+      [`%${query}%`]
+    );
+
+    console.log('Search results:', result.rows.length);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({ message: 'Error searching products' });
+  }
+});
+
 // Get a single product
-router.get('/:id', async (req, res) => {
+router.get('/:id(\\d+)', async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT p.*, u.username as seller_name FROM products p JOIN users u ON p.user_id = u.id WHERE p.id = $1',
@@ -93,7 +123,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // Update a product
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id(\\d+)', upload.single('image'), async (req, res) => {
   try {
     const {
       title,
@@ -137,7 +167,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 });
 
 // Delete a product
-router.delete('/:id', async (req, res) => {
+router.delete('/:id(\\d+)', async (req, res) => {
   try {
     const result = await pool.query(
       'DELETE FROM products WHERE id = $1 RETURNING *',

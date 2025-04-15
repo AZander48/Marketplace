@@ -121,6 +121,23 @@ class ApiService {
     }
   }
 
+  Future<List<Product>> searchProducts(String query) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/products/search?query=$query'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Product.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to search products: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error searching products: $e');
+    }
+  }
+
   String _handleError(int statusCode) {
     switch (statusCode) {
       case 400:

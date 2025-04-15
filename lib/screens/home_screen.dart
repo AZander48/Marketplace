@@ -6,6 +6,8 @@ import '../services/api_service.dart';
 import '../providers/auth_provider.dart';
 import 'add_product_screen.dart';
 import 'sell_screen.dart';
+import '../widgets/search_bar.dart';
+import '../providers/search_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,11 +21,20 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Product> _products = [];
   bool _isLoading = true;
   String? _errorMessage;
+  final _searchController = TextEditingController();
+  final _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _loadProducts();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _loadProducts() async {
@@ -73,13 +84,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onSearch(String query) {
+    if (query.isNotEmpty) {
+      Provider.of<SearchProvider>(context, listen: false).addSearchQuery(query);
+      // TODO: Implement search functionality
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Marketplace'),
+        title: CustomSearchBar(
+          controller: _searchController,
+          focusNode: _focusNode,
+          hintText: 'Search products...',
+          onSearch: _onSearch,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
