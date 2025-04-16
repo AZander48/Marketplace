@@ -1,13 +1,18 @@
 drop table if exists notifications;
 drop table if exists reviews;
 drop table if exists orders;
-drop table if exists products;
 drop table if exists search_history;
 drop table if exists settings;
-drop table if exists users;
+drop table if exists reports;
+drop table if exists bans;
+drop table if exists user_suspensions;
 drop table if exists user_interactions;
-drop table if exists product_popularity;
 drop table if exists user_preferences;
+drop table if exists product_popularity;
+drop table if exists products;
+drop table if exists categories;
+drop table if exists users;
+drop table if exists locations;
 
 -- Create tables
 CREATE TABLE users (
@@ -19,15 +24,30 @@ CREATE TABLE users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE locations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    icon VARCHAR(50),
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     title VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
-    category VARCHAR(50),
+    category_id INTEGER REFERENCES categories(id),
     condition VARCHAR(50),
-    location VARCHAR(255),
+    location_id INTEGER REFERENCES locations(id),
     image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -111,12 +131,30 @@ CREATE TABLE user_preferences (
     last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for better performance
-CREATE INDEX idx_products_user_id ON products(user_id);
-CREATE INDEX idx_orders_buyer_id ON orders(buyer_id);
-CREATE INDEX idx_orders_seller_id ON orders(seller_id);
-CREATE INDEX idx_products_category ON products(category);
-CREATE INDEX idx_products_location ON products(location);
+CREATE TABLE reports (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    reported_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    report_type VARCHAR(50) NOT NULL,
+    validation BOOLEAN DEFAULT FALSE,
+    ban BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE bans (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE user_suspensions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    suspension_type VARCHAR(50) NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Create index for faster notification queries
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
@@ -134,17 +172,14 @@ CREATE INDEX idx_orders_seller_id ON orders(seller_id);
 
 -- Create index for faster product queries
 CREATE INDEX idx_products_user_id ON products(user_id);
-CREATE INDEX idx_products_category ON products(category);
-CREATE INDEX idx_products_location ON products(location);
+CREATE INDEX idx_products_category_id ON products(category_id);
+CREATE INDEX idx_products_location_id ON products(location_id);
 
 -- Create index for faster search queries
-CREATE INDEX idx_products_search ON products USING GIN (to_tsvector('english', title || ' ' || description || ' ' || location));
+CREATE INDEX idx_products_search ON products USING GIN (to_tsvector('english', title || ' ' || description || ' ' || location_id));
 
 -- Create index for faster settings queries
 CREATE INDEX idx_settings_user_id ON settings(user_id);
-
--- Create index for faster notification queries
-CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 
 -- Create index for search history
 CREATE INDEX idx_search_history_user_id ON search_history(user_id);
@@ -160,3 +195,21 @@ CREATE INDEX idx_user_interactions_type ON user_interactions(interaction_type);
 CREATE INDEX idx_product_popularity_view_count ON product_popularity(view_count);
 CREATE INDEX idx_product_popularity_favorite_count ON product_popularity(favorite_count);
 CREATE INDEX idx_product_popularity_purchase_count ON product_popularity(purchase_count);
+
+-- Create index for user preferences
+CREATE INDEX idx_user_preferences_preferred_categories ON user_preferences(preferred_categories);
+CREATE INDEX idx_user_preferences_preferred_price_range ON user_preferences(preferred_price_range);
+CREATE INDEX idx_user_preferences_preferred_locations ON user_preferences(preferred_locations);
+
+-- Create index for location queries
+CREATE INDEX idx_locations_name ON locations(name);
+
+-- Create index for report queries
+CREATE INDEX idx_reports_user_id ON reports(user_id);
+CREATE INDEX idx_reports_reported_user_id ON reports(reported_user_id);
+
+-- Create index for ban queries
+CREATE INDEX idx_bans_user_id ON bans(user_id);
+
+-- Create index for user suspension queries
+CREATE INDEX idx_user_suspensions_user_id ON user_suspensions(user_id);

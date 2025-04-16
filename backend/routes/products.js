@@ -45,12 +45,14 @@ router.get('/search', async (req, res) => {
 
     // Search in title, description, and location
     const result = await pool.query(
-      `SELECT p.*, u.username as seller_name 
+      `SELECT p.*, u.username as seller_name, c.name as category_name, l.name as location_name
        FROM products p 
-       JOIN users u ON p.user_id = u.id 
+       JOIN users u ON p.user_id = u.id
+       JOIN categories c ON p.category_id = c.id
+       JOIN locations l ON p.location_id = l.id
        WHERE p.title ILIKE $1 
-       OR p.description ILIKE $1 
-       OR p.location ILIKE $1 
+       OR p.description ILIKE $1
+       OR l.name ILIKE $1
        ORDER BY p.created_at DESC`,
       [`%${query}%`]
     );

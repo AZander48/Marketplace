@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/image_service.dart';
+import '../services/auth_service.dart';
 import '../models/product.dart';
 
 class SellScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class _SellScreenState extends State<SellScreen> {
   final _categoryController = TextEditingController();
   final _conditionController = TextEditingController();
   final _locationController = TextEditingController();
+  final _authService = AuthService();
   String? _imageUrl;
   bool _isLoading = false;
 
@@ -36,9 +38,9 @@ class _SellScreenState extends State<SellScreen> {
       _titleController.text = widget.product!.title;
       _descriptionController.text = widget.product!.description;
       _priceController.text = widget.product!.price.toString();
-      _categoryController.text = widget.product!.category;
+      _categoryController.text = widget.product!.categoryId.toString();
       _conditionController.text = widget.product!.condition;
-      _locationController.text = widget.product!.location;
+      _locationController.text = widget.product!.locationId.toString();
       _imageUrl = widget.product!.imageUrl;
     }
   }
@@ -78,16 +80,26 @@ class _SellScreenState extends State<SellScreen> {
     setState(() => _isLoading = true);
     
     try {
+      // Get current user
+      final currentUser = await _authService.getCurrentUser();
+      if (currentUser == null) {
+        throw Exception('User not logged in');
+      }
+
       final product = Product(
         id: widget.product?.id ?? 0,
+        userId: currentUser.id,
         title: _titleController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
-        imageUrl: _imageUrl,
-        userId: widget.product?.userId ?? 1, // TODO: Get from authentication
-        category: _categoryController.text,
+        categoryId: int.parse(_categoryController.text),
         condition: _conditionController.text,
-        location: _locationController.text,
+        locationId: int.parse(_locationController.text),
+        imageUrl: _imageUrl,
+        sellerName: currentUser.username,
+        categoryName: widget.product?.categoryName ?? '',
+        createdAt: widget.product?.createdAt ?? DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       final apiService = Provider.of<ApiService>(context, listen: false);

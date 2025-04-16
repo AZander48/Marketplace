@@ -65,4 +65,29 @@ class SearchProvider with ChangeNotifier {
     await _saveSearchHistory();
     notifyListeners();
   }
+
+  Future<void> addToHistory(String query) async {
+    if (query.trim().isEmpty) return;
+
+    // Remove if already exists to avoid duplicates
+    _searchHistory.removeWhere((item) => item.query.toLowerCase() == query.toLowerCase());
+    // Add to the beginning of the list
+    _searchHistory.insert(0, SearchHistory(
+      query: query,
+      timestamp: DateTime.now(),
+    ));
+    // Keep only the last 10 searches
+    if (_searchHistory.length > 10) {
+      _searchHistory = _searchHistory.sublist(0, 10);
+    }
+
+    await _saveSearchHistory();
+    notifyListeners();
+  }
+
+  Future<void> clearHistory() async {
+    _searchHistory.clear();
+    await _saveSearchHistory();
+    notifyListeners();
+  }
 } 

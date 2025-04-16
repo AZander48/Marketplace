@@ -4,10 +4,14 @@ class Product {
   final String title;
   final String description;
   final double price;
-  final String category;
+  final int categoryId;
   final String condition;
-  final String location;
+  final int locationId;
   final String? imageUrl;
+  final String sellerName;
+  final String categoryName;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   Product({
     required this.id,
@@ -15,10 +19,14 @@ class Product {
     required this.title,
     required this.description,
     required this.price,
-    required this.category,
+    required this.categoryId,
     required this.condition,
-    required this.location,
+    required this.locationId,
     this.imageUrl,
+    required this.sellerName,
+    required this.categoryName,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -28,10 +36,14 @@ class Product {
       title: json['title'],
       description: json['description'],
       price: _parsePrice(json['price']),
-      category: json['category'],
+      categoryId: json['category_id'],
       condition: json['condition'],
-      location: json['location'],
+      locationId: json['location_id'],
       imageUrl: json['image_url'],
+      sellerName: json['seller_name'],
+      categoryName: json['category_name'],
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
     );
   }
 
@@ -48,12 +60,12 @@ class Product {
     return {
       'title': title,
       'description': description,
-      'price': price,
+      'price': price.toString(),
+      'category_id': categoryId,
+      'condition': condition,
+      'location_id': locationId,
       'image_url': imageUrl,
       'user_id': userId,
-      'category': category,
-      'condition': condition,
-      'location': location,
     };
   }
 } 

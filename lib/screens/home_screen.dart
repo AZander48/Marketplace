@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marketplace_app/screens/search_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
@@ -8,6 +9,8 @@ import 'add_product_screen.dart';
 import 'sell_screen.dart';
 import '../widgets/search_bar.dart';
 import '../providers/search_provider.dart';
+import '../services/category_service.dart';
+import '../models/category.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,16 +21,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
-  List<Product> _products = [];
+  final _categoryService = CategoryService();
+  List<Category> _categories = [];
+  Map<int, List<Product>> _categoryProducts = {};
   bool _isLoading = true;
   String? _errorMessage;
   final _searchController = TextEditingController();
   final _focusNode = FocusNode();
 
+
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    _loadCategories();
   }
 
   @override
@@ -37,58 +43,61 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  Future<void> _loadProducts() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
+  Future<void> _loadCategories() async {
     try {
-      final products = await _apiService.getProducts();
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final categories = await _categoryService.getCategories();
+      
       if (mounted) {
         setState(() {
-          _products = products;
+          _categories = categories;
           _isLoading = false;
         });
+
+        // Load products for each category
+        for (final category in categories) {
+          _loadCategoryProducts(category.id);
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          _errorMessage = e.toString();
         });
       }
     }
   }
 
-  Future<void> _testConnection() async {
+  Future<void> _loadCategoryProducts(int categoryId) async {
     try {
-      final result = await _apiService.testConnection();
+      final result = await _categoryService.getCategoryProducts(categoryId, limit: 4);
+      
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result['message']),
-            backgroundColor: Colors.green,
-          ),
-        );
+        setState(() {
+          _categoryProducts[categoryId] = result['products'];
+        });
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      print('Error loading products for category $categoryId: $e');
     }
   }
 
-  void _onSearch(String query) {
+  Future<void> _onSearch(String query) async {
+    final searchProvider = Provider.of<SearchProvider>(context, listen: false);
     if (query.isNotEmpty) {
-      Provider.of<SearchProvider>(context, listen: false).addSearchQuery(query);
-      // TODO: Implement search functionality
+      searchProvider.addToHistory(query);
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchScreen(initialQuery: query),
+      ),
+    );
   }
 
   @override
@@ -102,6 +111,14 @@ class _HomeScreenState extends State<HomeScreen> {
           focusNode: _focusNode,
           hintText: 'Search products...',
           onSearch: _onSearch,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SearchScreen(initialQuery: _searchController.text),
+              ),
+            );
+          },
         ),
         actions: [
           IconButton(
@@ -147,11 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.red,
-              size: 60,
-            ),
+            const Icon(Icons.error_outline, color: Colors.red, size: 60),
             const SizedBox(height: 16),
             Text(
               _errorMessage!,
@@ -160,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadProducts,
+              onPressed: _loadCategories,
               child: const Text('Retry'),
             ),
           ],
@@ -168,48 +181,79 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    if (_products.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _categories.length,
+      itemBuilder: (context, index) {
+        final category = _categories[index];
+        final products = _categoryProducts[category.id] ?? [];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.inventory_2_outlined,
-              size: 60,
-              color: Colors.grey,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    category.name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Navigate to category screen
+                    },
+                    child: const Text('See All'),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'No products available',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _loadProducts,
-              child: const Text('Refresh'),
+            SizedBox(
+              height: 200,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: products.length,
+                itemBuilder: (context, productIndex) {
+                  final product = products[productIndex];
+                  return Container(
+                    width: 150,
+                    margin: const EdgeInsets.only(right: 16),
+                    child: ProductCard(product: product),
+                  );
+                },
+              ),
             ),
           ],
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadProducts,
-      child: GridView.builder(
-        padding: const EdgeInsets.all(8),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.75,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemCount: _products.length,
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return ProductCard(product: product);
-        },
-      ),
+        );
+      },
     );
+  }
+
+  Future<void> _testConnection() async {
+    try {
+      final result = await _apiService.testConnection();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -220,7 +264,6 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -267,7 +310,7 @@ class ProductCard extends StatelessWidget {
                   product.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 14,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -279,21 +322,6 @@ class ProductCard extends StatelessWidget {
                     color: Colors.green,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        product.location,
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),

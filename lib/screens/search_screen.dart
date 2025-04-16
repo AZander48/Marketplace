@@ -7,23 +7,28 @@ import '../models/product.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final String? initialQuery;
+
+  const SearchScreen({super.key, this.initialQuery});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final _searchController = TextEditingController();
-  final _focusNode = FocusNode();
-  final _apiService = ApiService();
-  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  bool _isLoading = false;
   List<Product> _searchResults = [];
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    if (widget.initialQuery != null) {
+      _searchController.text = widget.initialQuery!;
+      _performSearch(widget.initialQuery!);
+    }
     _focusNode.requestFocus();
   }
 
@@ -35,37 +40,31 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _performSearch(String query) async {
-    if (query.trim().isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _errorMessage = null;
-      });
-      return;
-    }
-    
+    if (query.isEmpty) return;
+
     setState(() {
-      _isSearching = true;
+      _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      // Save the search query to history
-      Provider.of<SearchProvider>(context, listen: false).addSearchQuery(query);
+      final searchProvider = Provider.of<SearchProvider>(context, listen: false);
+      searchProvider.addToHistory(query);
 
-      // Perform the search
-      final results = await _apiService.searchProducts(query);
-      
+      final apiService = ApiService();
+      final results = await apiService.searchProducts(query);
+
       if (mounted) {
         setState(() {
           _searchResults = results;
-          _isSearching = false;
+          _isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _isSearching = false;
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          _errorMessage = e.toString();
+          _isLoading = false;
         });
       }
     }
@@ -82,112 +81,54 @@ class _SearchScreenState extends State<SearchScreen> {
           onSearch: _performSearch,
         ),
       ),
-      body: Column(
-        children: [
-          // Recent Searches Section (only show when not searching and no results)
-          if (!_isSearching && _searchResults.isEmpty)
-            Consumer<SearchProvider>(
-              builder: (context, searchProvider, child) {
-                if (searchProvider.searchHistory.isEmpty) {
-                  return const SizedBox.shrink();
-                }
+      body: _buildBody(),
+    );
+  }
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Recent Searches',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Provider.of<SearchProvider>(context, listen: false)
-                                  .clearSearchHistory();
-                            },
-                            child: const Text('Clear'),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: searchProvider.searchHistory.length,
-                      itemBuilder: (context, index) {
-                        final search = searchProvider.searchHistory[index];
-                        return ListTile(
-                          leading: const Icon(Icons.history),
-                          title: Text(search.query),
-                          onTap: () {
-                            _searchController.text = search.query;
-                            _performSearch(search.query);
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 60),
+            const SizedBox(height: 16),
+            Text(
+              _errorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16),
             ),
-          // Search Results Section
-          if (_isSearching)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (_errorMessage != null)
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 60,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else if (_searchResults.isEmpty)
-            const Expanded(
-              child: Center(
-                child: Text('No search results'),
-              ),
-            )
-          else
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.all(8),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: _searchResults.length,
-                itemBuilder: (context, index) {
-                  final product = _searchResults[index];
-                  return ProductCard(product: product);
-                },
-              ),
-            ),
-        ],
+          ],
+        ),
+      );
+    }
+
+    if (_searchResults.isEmpty) {
+      return const Center(
+        child: Text(
+          'No results found',
+          style: TextStyle(fontSize: 16),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
       ),
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        final product = _searchResults[index];
+        return ProductCard(product: product);
+      },
     );
   }
 }
@@ -265,7 +206,7 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        product.location,
+                        product.locationId.toString(),
                         style: const TextStyle(fontSize: 12, color: Colors.grey),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

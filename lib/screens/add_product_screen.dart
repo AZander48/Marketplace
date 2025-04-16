@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/image_service.dart';
+import '../services/auth_service.dart';
 import '../models/product.dart';
 
 class AddProductScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _categoryController = TextEditingController();
   final _conditionController = TextEditingController();
   final _locationController = TextEditingController();
+  final _authService = AuthService();
   String? _imageUrl;
   bool _isLoading = false;
 
@@ -57,16 +59,26 @@ class _AddProductScreenState extends State<AddProductScreen> {
     setState(() => _isLoading = true);
     
     try {
+      // Get current user
+      final currentUser = await _authService.getCurrentUser();
+      if (currentUser == null) {
+        throw Exception('User not logged in');
+      }
+
       final product = Product(
-        id: 0, // Will be set by the server
+        id: 0, // New product
+        userId: currentUser.id,
         title: _titleController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
-        imageUrl: _imageUrl,
-        userId: 1, // TODO: Get from authentication
-        category: _categoryController.text,
+        categoryId: int.parse(_categoryController.text),
         condition: _conditionController.text,
-        location: _locationController.text,
+        locationId: int.parse(_locationController.text),
+        imageUrl: _imageUrl,
+        sellerName: currentUser.username,
+        categoryName: '', // Will be set by the server
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       final apiService = Provider.of<ApiService>(context, listen: false);
