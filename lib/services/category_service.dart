@@ -45,12 +45,12 @@ class CategoryService {
       foundation.debugPrint('Category products response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> productsJson = data['products'] ?? [];
+        final List<Product> products = productsJson.map((json) => Product.fromJson(json)).toList();
         return {
-          'products': (data['products'] as List).map((json) => Product.fromJson(json)).toList(),
-          'total': data['total'],
-          'limit': data['limit'],
-          'offset': data['offset'],
+          'products': products,
+          'total': data['total'] ?? 0,
         };
       } else {
         throw Exception('Failed to load category products: ${response.statusCode}');

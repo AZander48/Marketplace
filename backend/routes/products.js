@@ -21,47 +21,66 @@ const upload = multer({ storage });
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT p.*, u.username as seller_name 
+      SELECT 
+        p.*, 
+        u.username as seller_name,
+        c.name as city_name,
+        s.name as state_name,
+        s.code as state_code,
+        co.name as country_name,
+        co.code as country_code
       FROM products p
-      JOIN users u ON p.user_id = u.id
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN cities c ON p.city_id = c.id
+      LEFT JOIN states s ON c.state_id = s.id
+      LEFT JOIN countries co ON s.country_id = co.id
       ORDER BY p.created_at DESC
     `);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.status(500).json({ message: 'Error fetching products' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // Search products
 router.get('/search', async (req, res) => {
+  const { query } = req.query;
+  
+  if (!query) {
+    return res.status(400).json({ error: 'Search query is required' });
+  }
+
   try {
-    const { query } = req.query;
+    const searchQuery = `%${query}%`;
+    const result = await pool.query(`
+      SELECT 
+        p.*, 
+        u.username as seller_name,
+        c.name as city_name,
+        s.name as state_name,
+        s.code as state_code,
+        co.name as country_name,
+        co.code as country_code
+      FROM products p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN cities c ON p.city_id = c.id
+      LEFT JOIN states s ON c.state_id = s.id
+      LEFT JOIN countries co ON s.country_id = co.id
+      WHERE p.title ILIKE $1 
+      OR p.description ILIKE $1
+      OR c.name ILIKE $1
+      OR s.name ILIKE $1
+      OR co.name ILIKE $1
+      ORDER BY p.created_at DESC
+    `, [searchQuery]);
+
     console.log('Search query:', query);
-
-    if (!query) {
-      return res.status(400).json({ message: 'Search query is required' });
-    }
-
-    // Search in title, description, and location
-    const result = await pool.query(
-      `SELECT p.*, u.username as seller_name, c.name as category_name, l.name as location_name
-       FROM products p 
-       JOIN users u ON p.user_id = u.id
-       JOIN categories c ON p.category_id = c.id
-       JOIN locations l ON p.location_id = l.id
-       WHERE p.title ILIKE $1 
-       OR p.description ILIKE $1
-       OR l.name ILIKE $1
-       ORDER BY p.created_at DESC`,
-      [`%${query}%`]
-    );
-
-    console.log('Search results:', result.rows.length);
+    console.log('Results found:', result.rows.length);
     res.json(result.rows);
   } catch (error) {
-    console.error('Search error:', error);
-    res.status(500).json({ message: 'Error searching products' });
+    console.error('Error searching products:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -184,6 +203,35 @@ router.delete('/:id(\\d+)', async (req, res) => {
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ message: 'Error deleting product' });
+  }
+});
+
+// Get user's products
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const result = await pool.query(`
+      SELECT 
+        p.*, 
+        u.username as seller_name,
+        c.name as city_name,
+        s.name as state_name,
+        s.code as state_code,
+        co.name as country_name,
+        co.code as country_code
+      FROM products p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN cities c ON p.city_id = c.id
+      LEFT JOIN states s ON c.state_id = s.id
+      LEFT JOIN countries co ON s.country_id = co.id
+      WHERE p.user_id = $1
+      ORDER BY p.created_at DESC
+    `, [userId]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching user products:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

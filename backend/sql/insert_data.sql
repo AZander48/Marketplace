@@ -1,17 +1,122 @@
 -- Enable pgcrypto extension for password hashing
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- Insert default locations
-INSERT INTO locations (name, description) VALUES
-    ('New York, NY', 'New York City, New York'),
-    ('Los Angeles, CA', 'Los Angeles, California'),
-    ('Chicago, IL', 'Chicago, Illinois'),
-    ('Miami, FL', 'Miami, Florida'),
-    ('San Francisco, CA', 'San Francisco, California'),
-    ('Seattle, WA', 'Seattle, Washington'),
-    ('Austin, TX', 'Austin, Texas'),
-    ('Boston, MA', 'Boston, Massachusetts'),
-    ('Washington, DC', 'Washington, D.C.');
+
+-- Insert countries
+INSERT INTO countries (name, code) VALUES
+('United States', 'US'),
+('Canada', 'CA'),
+('United Kingdom', 'GB'),
+('Australia', 'AU');
+
+-- Insert states for United States
+INSERT INTO states (country_id, name, code) VALUES
+(1, 'New York', 'NY'),
+(1, 'California', 'CA'),
+(1, 'Texas', 'TX'),
+(1, 'Florida', 'FL'),
+(1, 'Illinois', 'IL');
+
+-- Insert states for Canada
+INSERT INTO states (country_id, name, code) VALUES
+(2, 'Ontario', 'ON'),
+(2, 'Quebec', 'QC'),
+(2, 'British Columbia', 'BC'),
+(2, 'Alberta', 'AB');
+
+-- Insert states for United Kingdom
+INSERT INTO states (country_id, name, code) VALUES
+(3, 'England', 'ENG'),
+(3, 'Scotland', 'SCT'),
+(3, 'Wales', 'WLS'),
+(3, 'Northern Ireland', 'NIR');
+
+-- Insert states for Australia
+INSERT INTO states (country_id, name, code) VALUES
+(4, 'New South Wales', 'NSW'),
+(4, 'Victoria', 'VIC'),
+(4, 'Queensland', 'QLD'),
+(4, 'Western Australia', 'WA');
+
+-- Insert major cities for US states
+INSERT INTO cities (state_id, name) VALUES
+-- New York cities
+(1, 'New York City'),
+(1, 'Buffalo'),
+(1, 'Rochester'),
+-- California cities
+(2, 'Los Angeles'),
+(2, 'San Francisco'),
+(2, 'San Diego'),
+-- Texas cities
+(3, 'Houston'),
+(3, 'Dallas'),
+(3, 'Austin'),
+-- Florida cities
+(4, 'Miami'),
+(4, 'Orlando'),
+(4, 'Tampa'),
+-- Illinois cities
+(5, 'Chicago'),
+(5, 'Springfield'),
+(5, 'Rockford');
+
+-- Insert major cities for Canadian provinces
+INSERT INTO cities (state_id, name) VALUES
+-- Ontario cities
+(6, 'Toronto'),
+(6, 'Ottawa'),
+(6, 'Hamilton'),
+-- Quebec cities
+(7, 'Montreal'),
+(7, 'Quebec City'),
+(7, 'Laval'),
+-- British Columbia cities
+(8, 'Vancouver'),
+(8, 'Victoria'),
+(8, 'Surrey'),
+-- Alberta cities
+(9, 'Calgary'),
+(9, 'Edmonton'),
+(9, 'Red Deer');
+
+-- Insert major cities for UK countries
+INSERT INTO cities (state_id, name) VALUES
+-- England cities
+(10, 'London'),
+(10, 'Manchester'),
+(10, 'Birmingham'),
+-- Scotland cities
+(11, 'Edinburgh'),
+(11, 'Glasgow'),
+(11, 'Aberdeen'),
+-- Wales cities
+(12, 'Cardiff'),
+(12, 'Swansea'),
+(12, 'Newport'),
+-- Northern Ireland cities
+(13, 'Belfast'),
+(13, 'Derry'),
+(13, 'Lisburn');
+
+-- Insert major cities for Australian states
+INSERT INTO cities (state_id, name) VALUES
+-- New South Wales cities
+(14, 'Sydney'),
+(14, 'Newcastle'),
+(14, 'Wollongong'),
+-- Victoria cities
+(15, 'Melbourne'),
+(15, 'Geelong'),
+(15, 'Ballarat'),
+-- Queensland cities
+(16, 'Brisbane'),
+(16, 'Gold Coast'),
+(16, 'Sunshine Coast'),
+-- Western Australia cities
+(17, 'Perth'),
+(17, 'Fremantle'),
+(17, 'Mandurah');
 
 -- Insert default categories
 INSERT INTO categories (name, icon, description) VALUES
@@ -28,19 +133,20 @@ INSERT INTO categories (name, icon, description) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- Insert sample users with properly hashed passwords
-INSERT INTO users (username, email, password_hash) VALUES
-('john_doe', 'john@example.com', crypt('password123', gen_salt('bf'))),
-('jane_smith', 'jane@example.com', crypt('password123', gen_salt('bf'))),
-('mike_wilson', 'mike@example.com', crypt('password123', gen_salt('bf'))),
-('sarah_jones', 'sarah@example.com', crypt('password123', gen_salt('bf')));
+INSERT INTO users (username, email, password_hash, city_id, profile_image_url, bio, phone_number, is_verified) VALUES
+('john_doe', 'john@example.com', crypt('password123', gen_salt('bf')), 1, 'https://example.com/profiles/john.jpg', 'Tech enthusiast and gadget collector', '+1 212-555-1234', true),
+('jane_smith', 'jane@example.com', crypt('password123', gen_salt('bf')), 2, 'https://example.com/profiles/jane.jpg', 'Fashion designer and vintage collector', '+1 310-555-5678', true),
+('mike_wilson', 'mike@example.com', crypt('password123', gen_salt('bf')), 3, 'https://example.com/profiles/mike.jpg', 'Sports equipment seller and fitness trainer', '+1 312-555-9012', true),
+('sarah_jones', 'sarah@example.com', crypt('password123', gen_salt('bf')), 4, 'https://example.com/profiles/sarah.jpg', 'Art collector and gallery owner', '+1 713-555-3456', true);
 
 -- Insert sample products
-INSERT INTO products (user_id, title, description, price, category_id, condition, location_id, image_url) VALUES
-(1, 'iPhone 13 Pro', 'Like new iPhone 13 Pro 256GB', 799.99, 1, 'Like New', 1, 'https://example.com/iphone.jpg'),
-(2, 'Vintage Leather Jacket', 'Authentic 1980s leather jacket', 150.00, 2, 'Good', 2, 'https://example.com/jacket.jpg'),
-(3, 'Coffee Table', 'Modern glass coffee table, 48x24 inches', 120.00, 3, 'Excellent', 3, ''),
-(1, 'Nintendo Switch', 'Nintendo Switch with 2 controllers and 3 games', 250.00, 4, 'Good', 4, ''),
-(4, 'Designer Handbag', 'Louis Vuitton Neverfull MM, authentic', 1200.00, 5, 'Like New', 5, '');
+INSERT INTO products (user_id, title, description, price, category_id, condition, city_id, image_url) VALUES
+(1, 'iPhone 13 Pro', 'Like new, used for 2 months', 899.99, 1, 'Like New', 1, 'https://example.com/iphone.jpg'),
+(2, 'MacBook Pro', '2021 model, 16GB RAM', 1299.99, 1, 'Like New', 2, 'https://example.com/macbook.jpg'),
+(3, 'Nike Air Max', 'Size 10, never worn', 129.99, 2, 'New', 3, 'https://example.com/nike.jpg'),
+(4, 'Sony Headphones', 'Noise cancelling, wireless', 299.99, 1, 'Like New', 4, 'https://example.com/sony.jpg'),
+(1, 'Basketball', 'Professional basketball, never used', 29.99, 4, 'New', 5, 'https://example.com/basketball.jpg'),
+(2, 'Programming Book', 'Learn Flutter in 30 days', 49.99, 5, 'Like New', 6, 'https://example.com/book.jpg');
 
 -- Insert sample orders
 INSERT INTO orders (buyer_id, seller_id, product_id, status) VALUES
@@ -120,4 +226,27 @@ INSERT INTO user_suspensions (user_id, suspension_type, reason) VALUES
     (2, 3, 'inappropriate content', TRUE, TRUE),
     (3, 4, 'fraud', FALSE, FALSE),
     (4, 1, 'spam', TRUE, FALSE);*/
+
+-- Insert products with city references
+INSERT INTO products (user_id, title, description, price, category_id, city_id, image_url) VALUES
+(1, 'iPhone 13 Pro', 'Brand new iPhone 13 Pro, 256GB', 999.99, 1, 1, 'https://example.com/iphone.jpg'),
+(2, 'Designer Dress', 'Beautiful evening dress, size M', 199.99, 2, 3, 'https://example.com/dress.jpg'),
+(3, 'Garden Tools Set', 'Complete set of gardening tools', 79.99, 3, 9, 'https://example.com/tools.jpg'),
+(1, 'Basketball', 'Professional basketball, never used', 29.99, 4, 5, 'https://example.com/basketball.jpg'),
+(2, 'Programming Book', 'Learn Flutter in 30 days', 49.99, 5, 7, 'https://example.com/book.jpg');
+
+-- Add user location preferences
+INSERT INTO user_location_preferences (user_id, city_id, is_primary) VALUES
+-- John Doe's preferences (New York primary, Los Angeles secondary)
+(1, 1, true),
+(1, 2, false),
+-- Jane Smith's preferences (Los Angeles primary, New York secondary)
+(2, 2, true),
+(2, 1, false),
+-- Mike Wilson's preferences (Chicago primary, Houston secondary)
+(3, 3, true),
+(3, 4, false),
+-- Sarah Jones's preferences (Houston primary, Chicago secondary)
+(4, 4, true),
+(4, 3, false);
 

@@ -106,22 +106,54 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Get current user endpoint
+// Get user profile
 router.get('/me', authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT id, username, email FROM users WHERE id = $1',
-      [req.user.userId]
-    );
+    const result = await pool.query(`
+      SELECT 
+        u.*,
+        c.name as city_name,
+        s.name as state_name,
+        s.code as state_code,
+        co.name as country_name,
+        co.code as country_code,
+        (
+          SELECT json_agg(
+            json_build_object(
+              'id', ulp.id,
+              'user_id', ulp.user_id,
+              'city_id', ulp.city_id,
+              'is_primary', ulp.is_primary,
+              'created_at', ulp.created_at,
+              'city_name', c2.name,
+              'state_name', s2.name,
+              'state_code', s2.code,
+              'country_name', co2.name,
+              'country_code', co2.code
+            )
+          )
+          FROM user_location_preferences ulp
+          LEFT JOIN cities c2 ON ulp.city_id = c2.id
+          LEFT JOIN states s2 ON c2.state_id = s2.id
+          LEFT JOIN countries co2 ON s2.country_id = co2.id
+          WHERE ulp.user_id = u.id
+        ) as location_preferences
+      FROM users u
+      LEFT JOIN cities c ON u.city_id = c.id
+      LEFT JOIN states s ON c.state_id = s.id
+      LEFT JOIN countries co ON s.country_id = co.id
+      WHERE u.id = $1
+    `, [req.user.id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json(result.rows[0]);
+    const user = result.rows[0];
+    res.json(user);
   } catch (error) {
-    console.error('Get user error:', error);
-    res.status(500).json({ message: 'Error getting user' });
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

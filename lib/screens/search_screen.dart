@@ -206,7 +206,7 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        product.locationId.toString(),
+                        product.formattedLocation,
                         style: const TextStyle(fontSize: 12, color: Colors.grey),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

@@ -23,6 +23,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _authService = AuthService();
   String? _imageUrl;
   bool _isLoading = false;
+  int? _selectedCityId;
 
   @override
   void dispose() {
@@ -73,7 +74,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         price: double.parse(_priceController.text),
         categoryId: int.parse(_categoryController.text),
         condition: _conditionController.text,
-        locationId: int.parse(_locationController.text),
+        cityId: _selectedCityId!,
         imageUrl: _imageUrl,
         sellerName: currentUser.username,
         categoryName: '', // Will be set by the server

@@ -9,6 +9,10 @@ import multer from 'multer';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import authRoutes from './routes/auth.js';
+import productRoutes from './routes/products.js';
+import categoryRoutes from './routes/categories.js';
+import locationRoutes from './routes/locations.js';
 
 // Load environment variables
 dotenv.config();
@@ -75,6 +79,10 @@ const authenticateToken = (req, res, next) => {
 
 // Routes
 app.use('/api', routes);
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/locations', locationRoutes);
 
 // Auth routes
 app.post('/api/auth/register', async (req, res) => {

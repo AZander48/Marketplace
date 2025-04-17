@@ -11,24 +11,50 @@ drop table if exists user_preferences;
 drop table if exists product_popularity;
 drop table if exists products;
 drop table if exists categories;
+drop table if exists user_location_preferences;
 drop table if exists users;
-drop table if exists locations;
+drop table if exists cities;
+drop table if exists states;
+drop table if exists countries;
 
 -- Create tables
+CREATE TABLE countries (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(2) UNIQUE NOT NULL, -- ISO 3166-1 alpha-2 country code
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE states (
+    id SERIAL PRIMARY KEY,
+    country_id INTEGER REFERENCES countries(id),
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(10), -- State/province code (e.g., CA for California)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(country_id, name)
+);
+
+CREATE TABLE cities (
+    id SERIAL PRIMARY KEY,
+    state_id INTEGER REFERENCES states(id),
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(state_id, name)
+);
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    city_id INTEGER REFERENCES cities(id),
+    profile_image_url VARCHAR(255),
+    bio TEXT,
+    phone_number VARCHAR(20),
+    is_verified BOOLEAN DEFAULT FALSE,
+    last_active TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE locations (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE categories (
@@ -47,7 +73,7 @@ CREATE TABLE products (
     price DECIMAL(10,2) NOT NULL,
     category_id INTEGER REFERENCES categories(id),
     condition VARCHAR(50),
-    location_id INTEGER REFERENCES locations(id),
+    city_id INTEGER REFERENCES cities(id),
     image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -156,6 +182,16 @@ CREATE TABLE user_suspensions (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create user location preferences table
+CREATE TABLE user_location_preferences (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    city_id INTEGER REFERENCES cities(id),
+    is_primary BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, city_id)
+);
+
 -- Create index for faster notification queries
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
@@ -173,10 +209,10 @@ CREATE INDEX idx_orders_seller_id ON orders(seller_id);
 -- Create index for faster product queries
 CREATE INDEX idx_products_user_id ON products(user_id);
 CREATE INDEX idx_products_category_id ON products(category_id);
-CREATE INDEX idx_products_location_id ON products(location_id);
+CREATE INDEX idx_products_city_id ON products(city_id);
 
 -- Create index for faster search queries
-CREATE INDEX idx_products_search ON products USING GIN (to_tsvector('english', title || ' ' || description || ' ' || location_id));
+CREATE INDEX idx_products_search ON products USING GIN (to_tsvector('english', title || ' ' || description || ' ' || city_id));
 
 -- Create index for faster settings queries
 CREATE INDEX idx_settings_user_id ON settings(user_id);
@@ -202,7 +238,11 @@ CREATE INDEX idx_user_preferences_preferred_price_range ON user_preferences(pref
 CREATE INDEX idx_user_preferences_preferred_locations ON user_preferences(preferred_locations);
 
 -- Create index for location queries
-CREATE INDEX idx_locations_name ON locations(name);
+CREATE INDEX idx_countries_name ON countries(name);
+CREATE INDEX idx_states_country_id ON states(country_id);
+CREATE INDEX idx_states_name ON states(name);
+CREATE INDEX idx_cities_state_id ON cities(state_id);
+CREATE INDEX idx_cities_name ON cities(name);
 
 -- Create index for report queries
 CREATE INDEX idx_reports_user_id ON reports(user_id);
@@ -213,3 +253,8 @@ CREATE INDEX idx_bans_user_id ON bans(user_id);
 
 -- Create index for user suspension queries
 CREATE INDEX idx_user_suspensions_user_id ON user_suspensions(user_id);
+
+-- Create indexes for user location queries
+CREATE INDEX idx_users_city_id ON users(city_id);
+CREATE INDEX idx_user_location_preferences_user_id ON user_location_preferences(user_id);
+CREATE INDEX idx_user_location_preferences_city_id ON user_location_preferences(city_id);

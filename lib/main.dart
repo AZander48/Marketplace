@@ -10,9 +10,25 @@ import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/search_provider.dart';
+import 'providers/location_provider.dart';
+import 'services/location_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(
+          create: (_) => LocationProvider(
+            locationService: LocationService(baseUrl: 'http://10.0.2.2:3000/api'),
+          ),
+        ),
+        Provider(create: (_) => ApiService()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +40,11 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(
+          create: (_) => LocationProvider(
+            locationService: LocationService(baseUrl: 'http://10.0.2.2:3000/api'),
+          ),
+        ),
         Provider(create: (_) => ApiService()),
       ],
       child: MaterialApp(
