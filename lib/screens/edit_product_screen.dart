@@ -150,6 +150,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Edit Product'),
         actions: [
@@ -203,7 +204,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         prefixText: '\$',
                         border: OutlineInputBorder(),
                       ),
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.visiblePassword,
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a price';
@@ -223,6 +225,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         labelText: 'Title',
                         border: OutlineInputBorder(),
                       ),
+                      keyboardType: TextInputType.visiblePassword,
+                      textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a title';
@@ -256,6 +260,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         border: OutlineInputBorder(),
                         alignLabelWithHint: true,
                       ),
+                      keyboardType: TextInputType.visiblePassword,
+                      textInputAction: TextInputAction.newline,
                       maxLines: 3,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -273,6 +279,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         labelText: 'Condition (Optional)',
                         border: OutlineInputBorder(),
                       ),
+                      keyboardType: TextInputType.visiblePassword,
+                      textInputAction: TextInputAction.done,
                     ),
                   ],
                 ),

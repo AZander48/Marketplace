@@ -83,10 +83,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       );
 
       final apiService = Provider.of<ApiService>(context, listen: false);
-      await apiService.createProduct(product);
+      final newProduct = await apiService.createProduct(product);
       
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context, newProduct);
       }
     } catch (e) {
       if (mounted) {
@@ -104,18 +104,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Add New Product'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.next,
+                autofocus: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
@@ -123,9 +130,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.newline,
                 maxLines: 3,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -134,10 +147,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Price',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a price';
@@ -148,9 +166,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _categoryController,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a category';
@@ -158,9 +182,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _conditionController,
-                decoration: const InputDecoration(labelText: 'Condition'),
+                decoration: const InputDecoration(
+                  labelText: 'Condition',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the condition';
@@ -168,9 +198,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(labelText: 'Location'),
+                decoration: const InputDecoration(
+                  labelText: 'Location',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.done,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the location';

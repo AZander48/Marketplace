@@ -107,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: CustomSearchBar(
           controller: _searchController,
@@ -121,6 +122,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           },
+          keyboardType: TextInputType.visiblePassword,
+          textInputAction: TextInputAction.search,
+          autofocus: false,
         ),
         actions: [
           IconButton(

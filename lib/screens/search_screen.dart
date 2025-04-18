@@ -73,12 +73,16 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: CustomSearchBar(
           controller: _searchController,
           focusNode: _focusNode,
           hintText: 'Search products...',
           onSearch: _performSearch,
+          keyboardType: TextInputType.visiblePassword,
+          textInputAction: TextInputAction.search,
+          autofocus: true,
         ),
       ),
       body: _buildBody(),

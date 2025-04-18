@@ -6,6 +6,9 @@ import 'screens/search_screen.dart';
 import 'screens/sell_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/view_product_screen.dart';
+import 'screens/add_product_screen.dart';
+import 'screens/edit_product_screen.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
@@ -13,8 +16,10 @@ import 'providers/search_provider.dart';
 import 'providers/location_provider.dart';
 import 'services/location_service.dart';
 import 'package:http/http.dart' as http;
+import 'models/product.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   final httpClient = http.Client();
   final locationService = LocationService(
     baseUrl: 'http://10.0.2.2:3000/api',
@@ -33,6 +38,7 @@ void main() {
           create: (_) => LocationProvider(locationService),
         ),
         Provider(create: (_) => ApiService()),
+        Provider(create: (_) => AuthService()),
       ],
       child: const MyApp(),
     ),
@@ -70,11 +76,36 @@ class MyApp extends StatelessWidget {
           unselectedItemColor: Colors.black,
           elevation: 0,
         ),
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue),
+          ),
+        ),
       ),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaleFactor: 1.0,
+            alwaysUse24HourFormat: true,
+            viewInsets: MediaQuery.of(context).viewInsets,
+          ),
+          child: child!,
+        );
+      },
+      debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
         '/': (context) => const MainScreen(),
         '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/sell': (context) => const SellScreen(),
+        '/view': (context) => const ViewProductScreen(),
+        '/add': (context) => const AddProductScreen(),
+        '/edit': (context) => const EditProductScreen(productId: 0),
       },
     );
   }

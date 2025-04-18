@@ -7,6 +7,9 @@ class CustomSearchBar extends StatelessWidget {
   final Function(String) onSearch;
   final VoidCallback? onTap;
   final bool showClearButton;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final bool autofocus;
 
   const CustomSearchBar({
     super.key,
@@ -16,6 +19,9 @@ class CustomSearchBar extends StatelessWidget {
     required this.onSearch,
     this.onTap,
     this.showClearButton = true,
+    this.keyboardType,
+    this.textInputAction,
+    this.autofocus = true,
   });
 
   @override
@@ -41,8 +47,14 @@ class CustomSearchBar extends StatelessWidget {
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
+              keyboardType: TextInputType.visiblePassword,
+              textInputAction: textInputAction ?? TextInputAction.search,
               onSubmitted: onSearch,
               onTap: onTap,
+              enableInteractiveSelection: true,
+              enableSuggestions: true,
+              autocorrect: true,
+              autofocus: autofocus,
             ),
           ),
           if (showClearButton && controller.text.isNotEmpty)
