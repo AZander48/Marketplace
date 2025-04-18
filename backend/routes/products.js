@@ -87,10 +87,22 @@ router.get('/search', async (req, res) => {
 // Get a single product
 router.get('/:id(\\d+)', async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT p.*, u.username as seller_name FROM products p JOIN users u ON p.user_id = u.id WHERE p.id = $1',
-      [req.params.id]
-    );
+    const result = await pool.query(`
+      SELECT 
+        p.*, 
+        u.username as seller_name,
+        c.name as city_name,
+        s.name as state_name,
+        s.code as state_code,
+        co.name as country_name,
+        co.code as country_code
+      FROM products p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN cities c ON p.city_id = c.id
+      LEFT JOIN states s ON c.state_id = s.id
+      LEFT JOIN countries co ON s.country_id = co.id
+      WHERE p.id = $1
+    `, [req.params.id]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Product not found' });

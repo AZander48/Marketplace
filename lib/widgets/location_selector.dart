@@ -39,13 +39,15 @@ class _LocationSelectorState extends State<LocationSelector> {
   @override
   void initState() {
     super.initState();
-    _loadCountries();
-    if (widget.selectedCountryId != null) {
-      _loadStates(widget.selectedCountryId!);
-    }
-    if (widget.selectedStateId != null) {
-      _loadCities(widget.selectedStateId!);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCountries();
+      if (widget.selectedCountryId != null) {
+        _loadStates(widget.selectedCountryId!);
+      }
+      if (widget.selectedStateId != null) {
+        _loadCities(widget.selectedStateId!);
+      }
+    });
   }
 
   Future<void> _loadCountries() async {

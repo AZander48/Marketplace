@@ -278,10 +278,14 @@ class _SellScreenState extends State<SellScreen> {
         children: [
           TextFormField(
             controller: _titleController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Title',
               border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.grey[100],
+              labelStyle: TextStyle(color: Colors.grey[700]),
             ),
+            style: const TextStyle(color: Colors.black87),
             enabled: !widget.isViewOnly,
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -293,10 +297,14 @@ class _SellScreenState extends State<SellScreen> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _descriptionController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Description',
               border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.grey[100],
+              labelStyle: TextStyle(color: Colors.grey[700]),
             ),
+            style: const TextStyle(color: Colors.black87),
             maxLines: 3,
             enabled: !widget.isViewOnly,
             validator: (value) {
@@ -309,10 +317,14 @@ class _SellScreenState extends State<SellScreen> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _priceController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Price',
               border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.grey[100],
+              labelStyle: TextStyle(color: Colors.grey[700]),
             ),
+            style: const TextStyle(color: Colors.black87),
             keyboardType: TextInputType.number,
             enabled: !widget.isViewOnly,
             validator: (value) {
@@ -326,55 +338,118 @@ class _SellScreenState extends State<SellScreen> {
             },
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            value: _conditionController.text.isEmpty ? null : _conditionController.text,
-            decoration: const InputDecoration(
-              labelText: 'Condition',
-              border: OutlineInputBorder(),
+          if (widget.isViewOnly)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _conditionController,
+                  decoration: InputDecoration(
+                    labelText: 'Condition',
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    labelStyle: TextStyle(color: Colors.grey[700]),
+                  ),
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                  enabled: false,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  initialValue: widget.product?.countryName ?? '',
+                  decoration: InputDecoration(
+                    labelText: 'Country',
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    labelStyle: TextStyle(color: Colors.grey[700]),
+                  ),
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                  enabled: false,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  initialValue: widget.product?.stateName ?? '',
+                  decoration: InputDecoration(
+                    labelText: 'State',
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    labelStyle: TextStyle(color: Colors.grey[700]),
+                  ),
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                  enabled: false,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  initialValue: widget.product?.cityName ?? '',
+                  decoration: InputDecoration(
+                    labelText: 'City',
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    labelStyle: TextStyle(color: Colors.grey[700]),
+                  ),
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                  enabled: false,
+                ),
+              ],
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: _conditionController.text.isEmpty ? null : _conditionController.text,
+                  decoration: const InputDecoration(
+                    labelText: 'Condition',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'New', child: Text('New')),
+                    DropdownMenuItem(value: 'Like New', child: Text('Like New')),
+                    DropdownMenuItem(value: 'Good', child: Text('Good')),
+                    DropdownMenuItem(value: 'Fair', child: Text('Fair')),
+                    DropdownMenuItem(value: 'Poor', child: Text('Poor')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      _conditionController.text = value;
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a condition';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                LocationSelector(
+                  baseUrl: 'http://10.0.2.2:3000/api',
+                  selectedCountryId: _selectedCountryId,
+                  selectedStateId: _selectedStateId,
+                  selectedCityId: _selectedCityId,
+                  onCountrySelected: (value) {
+                    setState(() {
+                      _selectedCountryId = value;
+                      _selectedStateId = null;
+                      _selectedCityId = null;
+                    });
+                  },
+                  onStateSelected: (value) {
+                    setState(() {
+                      _selectedStateId = value;
+                      _selectedCityId = null;
+                    });
+                  },
+                  onCitySelected: (value) {
+                    setState(() => _selectedCityId = value);
+                  },
+                  isViewOnly: widget.isViewOnly,
+                ),
+              ],
             ),
-            items: const [
-              DropdownMenuItem(value: 'New', child: Text('New')),
-              DropdownMenuItem(value: 'Like New', child: Text('Like New')),
-              DropdownMenuItem(value: 'Good', child: Text('Good')),
-              DropdownMenuItem(value: 'Fair', child: Text('Fair')),
-              DropdownMenuItem(value: 'Poor', child: Text('Poor')),
-            ],
-            onChanged: widget.isViewOnly ? null : (value) {
-              if (value != null) {
-                _conditionController.text = value;
-              }
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please select a condition';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-          LocationSelector(
-            baseUrl: 'http://10.0.2.2:3000/api',
-            selectedCountryId: _selectedCountryId,
-            selectedStateId: _selectedStateId,
-            selectedCityId: _selectedCityId,
-            onCountrySelected: (value) {
-              setState(() {
-                _selectedCountryId = value;
-                _selectedStateId = null;
-                _selectedCityId = null;
-              });
-            },
-            onStateSelected: (value) {
-              setState(() {
-                _selectedStateId = value;
-                _selectedCityId = null;
-              });
-            },
-            onCitySelected: (value) {
-              setState(() => _selectedCityId = value);
-            },
-            isViewOnly: widget.isViewOnly,
-          ),
           const SizedBox(height: 16),
           if (_imageUrl != null)
             ClipRRect(
