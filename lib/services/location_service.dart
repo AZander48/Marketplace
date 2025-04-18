@@ -3,14 +3,15 @@ import 'package:http/http.dart' as http;
 import '../models/location.dart';
 
 class LocationService {
-  String _baseUrl;
+  final String baseUrl;
+  final http.Client client;
 
-  LocationService({required String baseUrl}) : _baseUrl = baseUrl;
+  LocationService({required this.baseUrl, required this.client});
 
   Future<List<Country>> getCountries() async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/locations/countries'),
+      final response = await client.get(
+        Uri.parse('$baseUrl/locations/countries'),
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -24,15 +25,15 @@ class LocationService {
     }
   }
 
-  Future<List<State>> getStates(int countryId) async {
+  Future<List<LocationState>> getStates(int countryId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/locations/states/$countryId'),
+      final response = await client.get(
+        Uri.parse('$baseUrl/locations/states/$countryId'),
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => State.fromJson(json)).toList();
+        return data.map((json) => LocationState.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load states: ${response.statusCode}');
       }
@@ -43,8 +44,8 @@ class LocationService {
 
   Future<List<City>> getCities(int stateId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/locations/cities/$stateId'),
+      final response = await client.get(
+        Uri.parse('$baseUrl/locations/cities/$stateId'),
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -60,8 +61,8 @@ class LocationService {
 
   Future<List<City>> searchCities(String query) async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/locations/cities/search?query=$query'),
+      final response = await client.get(
+        Uri.parse('$baseUrl/locations/cities/search?query=$query'),
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {

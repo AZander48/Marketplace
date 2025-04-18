@@ -12,17 +12,25 @@ import 'providers/auth_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/location_provider.dart';
 import 'services/location_service.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
+  final httpClient = http.Client();
+  final locationService = LocationService(
+    baseUrl: 'http://10.0.2.2:3000/api',
+    client: httpClient,
+  );
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
-        ChangeNotifierProvider(
-          create: (_) => LocationProvider(
-            locationService: LocationService(baseUrl: 'http://10.0.2.2:3000/api'),
-          ),
+        Provider<LocationService>(
+          create: (_) => locationService,
+        ),
+        ChangeNotifierProvider<LocationProvider>(
+          create: (_) => LocationProvider(locationService),
         ),
         Provider(create: (_) => ApiService()),
       ],
@@ -36,50 +44,38 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => SearchProvider()),
-        ChangeNotifierProvider(
-          create: (_) => LocationProvider(
-            locationService: LocationService(baseUrl: 'http://10.0.2.2:3000/api'),
-          ),
+    return MaterialApp(
+      title: 'Marketplace',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          primary: Colors.blue,
+          secondary: Colors.blue.shade200,
+          surface: Colors.white,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurfaceVariant: Colors.black87,
+          onSurface: Colors.black87,
         ),
-        Provider(create: (_) => ApiService()),
-      ],
-      child: MaterialApp(
-        title: 'Marketplace',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            primary: Colors.blue,
-            secondary: Colors.blue.shade200,
-            surface: Colors.white,
-            onPrimary: Colors.white,
-            onSecondary: Colors.white,
-            onSurfaceVariant: Colors.black87,
-            onSurface: Colors.black87,
-          ),
-          useMaterial3: true,
-          textTheme: GoogleFonts.poppinsTextTheme(),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            elevation: 0,
-          ),
-          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-            backgroundColor: Colors.white,
-            selectedItemColor: Colors.blue,
-            unselectedItemColor: Colors.black,
-            elevation: 0,
-          ),
+        useMaterial3: true,
+        textTheme: GoogleFonts.poppinsTextTheme(),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          elevation: 0,
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const MainScreen(),
-          '/login': (context) => const LoginScreen(),
-        },
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.black,
+          elevation: 0,
+        ),
       ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MainScreen(),
+        '/login': (context) => const LoginScreen(),
+      },
     );
   }
 }

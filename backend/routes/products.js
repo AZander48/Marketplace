@@ -28,12 +28,14 @@ router.get('/', async (req, res) => {
         s.name as state_name,
         s.code as state_code,
         co.name as country_name,
-        co.code as country_code
+        co.code as country_code,
+        cat.name as category_name
       FROM products p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN cities c ON p.city_id = c.id
       LEFT JOIN states s ON c.state_id = s.id
       LEFT JOIN countries co ON s.country_id = co.id
+      LEFT JOIN categories cat ON p.category_id = cat.id
       ORDER BY p.created_at DESC
     `);
     res.json(result.rows);
@@ -61,17 +63,20 @@ router.get('/search', async (req, res) => {
         s.name as state_name,
         s.code as state_code,
         co.name as country_name,
-        co.code as country_code
+        co.code as country_code,
+        cat.name as category_name
       FROM products p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN cities c ON p.city_id = c.id
       LEFT JOIN states s ON c.state_id = s.id
       LEFT JOIN countries co ON s.country_id = co.id
+      LEFT JOIN categories cat ON p.category_id = cat.id
       WHERE p.title ILIKE $1 
       OR p.description ILIKE $1
       OR c.name ILIKE $1
       OR s.name ILIKE $1
       OR co.name ILIKE $1
+      OR cat.name ILIKE $1
       ORDER BY p.created_at DESC
     `, [searchQuery]);
 
@@ -95,12 +100,14 @@ router.get('/:id(\\d+)', async (req, res) => {
         s.name as state_name,
         s.code as state_code,
         co.name as country_name,
-        co.code as country_code
+        co.code as country_code,
+        cat.name as category_name
       FROM products p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN cities c ON p.city_id = c.id
       LEFT JOIN states s ON c.state_id = s.id
       LEFT JOIN countries co ON s.country_id = co.id
+      LEFT JOIN categories cat ON p.category_id = cat.id
       WHERE p.id = $1
     `, [req.params.id]);
 
@@ -162,9 +169,9 @@ router.put('/:id(\\d+)', upload.single('image'), async (req, res) => {
       title,
       description,
       price,
-      category,
+      category_id,
       condition,
-      location,
+      city_id,
     } = req.body;
 
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
@@ -173,7 +180,7 @@ router.put('/:id(\\d+)', upload.single('image'), async (req, res) => {
       `UPDATE products 
        SET title = $1, description = $2, price = $3, 
            image_url = COALESCE($4, image_url),
-           category = $5, condition = $6, location = $7
+           category_id = $5, condition = $6, city_id = $7
        WHERE id = $8
        RETURNING *`,
       [
@@ -181,9 +188,9 @@ router.put('/:id(\\d+)', upload.single('image'), async (req, res) => {
         description,
         price,
         imageUrl,
-        category,
+        category_id,
         condition,
-        location,
+        city_id,
         req.params.id,
       ]
     );
@@ -230,12 +237,14 @@ router.get('/user/:userId', async (req, res) => {
         s.name as state_name,
         s.code as state_code,
         co.name as country_name,
-        co.code as country_code
+        co.code as country_code,
+        cat.name as category_name
       FROM products p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN cities c ON p.city_id = c.id
       LEFT JOIN states s ON c.state_id = s.id
       LEFT JOIN countries co ON s.country_id = co.id
+      LEFT JOIN categories cat ON p.category_id = cat.id
       WHERE p.user_id = $1
       ORDER BY p.created_at DESC
     `, [userId]);

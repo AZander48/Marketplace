@@ -4,19 +4,22 @@ import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/image_service.dart';
 import '../services/auth_service.dart';
+import '../services/category_service.dart';
 import '../models/product.dart';
+import '../models/category.dart';
+import '../models/location.dart';
 import '../widgets/location_selector.dart';
 import '../providers/auth_provider.dart';
+import '../screens/view_product_screen.dart';
+import '../providers/location_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class SellScreen extends StatefulWidget {
   final Product? product; // If null, we're adding a new product
-  final bool isViewOnly; // If true, we're just viewing the product
 
   const SellScreen({
     super.key,
     this.product,
-    this.isViewOnly = false,
   });
 
   @override
@@ -28,17 +31,25 @@ class _SellScreenState extends State<SellScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
-  final _categoryController = TextEditingController();
   final _conditionController = TextEditingController();
-  final _locationController = TextEditingController();
+  final _countryController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _cityController = TextEditingController();
   final _authService = AuthService();
+  final _categoryService = CategoryService();
   String? _imageUrl;
   bool _isLoading = false;
   int? _selectedCountryId;
   int? _selectedStateId;
   int? _selectedCityId;
+  int? _selectedCategoryId;
   List<Product> _userProducts = [];
   bool _isLoadingProducts = true;
+  List<Category> _categories = [];
+  bool _isLoadingCategories = true;
+  String? _selectedCountryName;
+  String? _selectedStateName;
+  String? _selectedCityName;
 
   @override
   void initState() {
@@ -47,15 +58,82 @@ class _SellScreenState extends State<SellScreen> {
       _titleController.text = widget.product!.title;
       _descriptionController.text = widget.product!.description ?? '';
       _priceController.text = widget.product!.price.toString();
-      _categoryController.text = widget.product!.categoryName ?? '';
       _conditionController.text = widget.product!.condition ?? '';
+      _countryController.text = widget.product!.countryName ?? '';
+      _stateController.text = widget.product!.stateName ?? '';
+      _cityController.text = widget.product!.cityName ?? '';
       _selectedCityId = widget.product!.cityId;
+      _selectedCategoryId = widget.product!.categoryId;
       _imageUrl = widget.product!.imageUrl;
-      
-      // Load the location hierarchy
-      _loadLocationHierarchy();
     }
     _loadUserProducts();
+    _loadCategories();
+
+    // Initialize location data after the frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+      
+      try {
+        // Always load countries first
+        await locationProvider.loadCountries();
+        
+        // If editing a product, load the full location hierarchy
+        if (widget.product?.cityId != null) {
+          final apiService = Provider.of<ApiService>(context, listen: false);
+          final city = await apiService.getCityById(widget.product!.cityId!);
+          
+          if (city != null) {
+            final state = await apiService.getStateById(city.stateId);
+            
+            if (state != null) {
+              // Load states for the country
+              await locationProvider.loadStates(state.countryId);
+              
+              // Load cities for the state
+              await locationProvider.loadCities(city.stateId);
+              
+              if (mounted) {
+                setState(() {
+                  _selectedCountryId = state.countryId;
+                  _selectedStateId = city.stateId;
+                  _selectedCityId = city.id;
+                  _selectedCountryName = widget.product?.countryName;
+                  _selectedStateName = state.name;
+                  _selectedCityName = city.name;
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading location data: $e')),
+          );
+        }
+      }
+    });
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await _categoryService.getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+          _isLoadingCategories = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCategories = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading categories: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _loadUserProducts() async {
@@ -84,44 +162,15 @@ class _SellScreenState extends State<SellScreen> {
     }
   }
 
-  Future<void> _loadLocationHierarchy() async {
-    if (widget.product?.cityId == null) return;
-    
-    try {
-      final apiService = Provider.of<ApiService>(context, listen: false);
-      // Get city details
-      final city = await apiService.getCityById(widget.product!.cityId!);
-      if (city != null) {
-        setState(() {
-          _selectedCityId = city.id;
-          _selectedStateId = city.stateId;
-        });
-        
-        // Get state details
-        final state = await apiService.getStateById(city.stateId);
-        if (state != null) {
-          setState(() {
-            _selectedCountryId = state.countryId;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading location: $e')),
-        );
-      }
-    }
-  }
-
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
-    _categoryController.dispose();
     _conditionController.dispose();
-    _locationController.dispose();
+    _countryController.dispose();
+    _stateController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
@@ -146,32 +195,29 @@ class _SellScreenState extends State<SellScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-    
     try {
-      final currentUser = await _authService.getCurrentUser();
-      if (currentUser == null) {
-        throw Exception('User not logged in');
-      }
+      setState(() => _isLoading = true);
 
-      if (_selectedCityId == null) {
-        throw Exception('Please select a location');
-      }
-
-      final product = Product(
+      // Create or update product
+      var product = Product(
         id: widget.product?.id ?? 0,
-        userId: currentUser.id,
+        userId: widget.product?.userId ?? 0,
         title: _titleController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
-        categoryId: int.parse(_categoryController.text),
-        condition: _conditionController.text,
-        cityId: _selectedCityId!,  // Use selected city ID
+        categoryId: _selectedCategoryId ?? 0,
+        condition: _conditionController.text.isEmpty ? null : _conditionController.text,
+        cityId: _selectedCityId,
         imageUrl: _imageUrl,
-        sellerName: currentUser.username,
-        categoryName: widget.product?.categoryName ?? '',
+        sellerName: widget.product?.sellerName,
+        categoryName: widget.product?.categoryName,
         createdAt: widget.product?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
+        cityName: _selectedCityName,
+        stateName: _selectedStateName,
+        stateCode: widget.product?.stateCode,
+        countryName: _selectedCountryName,
+        countryCode: widget.product?.countryCode,
       );
 
       final apiService = Provider.of<ApiService>(context, listen: false);
@@ -179,18 +225,32 @@ class _SellScreenState extends State<SellScreen> {
       if (widget.product == null) {
         // Creating a new product
         await apiService.createProduct(product);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product created successfully')),
+        );
       } else {
         // Updating an existing product
         await apiService.updateProduct(product);
+        // Fetch the updated product data
+        final updatedProduct = await apiService.getProduct(product.id);
+        if (updatedProduct != null) {
+          product = updatedProduct;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product updated successfully')),
+        );
       }
       
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context, product);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error ${widget.product == null ? 'creating' : 'updating'} product: $e')),
+          SnackBar(
+            content: Text('Error ${widget.product == null ? 'creating' : 'updating'} product: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -209,10 +269,7 @@ class _SellScreenState extends State<SellScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SellScreen(
-                product: product,
-                isViewOnly: true,
-              ),
+              builder: (context) => ViewProductScreen(product: product),
             ),
           );
         },
@@ -286,7 +343,6 @@ class _SellScreenState extends State<SellScreen> {
               labelStyle: TextStyle(color: Colors.grey[700]),
             ),
             style: const TextStyle(color: Colors.black87),
-            enabled: !widget.isViewOnly,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter a title';
@@ -306,7 +362,6 @@ class _SellScreenState extends State<SellScreen> {
             ),
             style: const TextStyle(color: Colors.black87),
             maxLines: 3,
-            enabled: !widget.isViewOnly,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter a description';
@@ -326,7 +381,6 @@ class _SellScreenState extends State<SellScreen> {
             ),
             style: const TextStyle(color: Colors.black87),
             keyboardType: TextInputType.number,
-            enabled: !widget.isViewOnly,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter a price';
@@ -338,151 +392,140 @@ class _SellScreenState extends State<SellScreen> {
             },
           ),
           const SizedBox(height: 16),
-          if (widget.isViewOnly)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: _conditionController,
-                  decoration: InputDecoration(
-                    labelText: 'Condition',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    labelStyle: TextStyle(color: Colors.grey[700]),
-                  ),
-                  style: TextStyle(color: Colors.black87, fontSize: 16),
-                  enabled: false,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  initialValue: widget.product?.countryName ?? '',
-                  decoration: InputDecoration(
-                    labelText: 'Country',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    labelStyle: TextStyle(color: Colors.grey[700]),
-                  ),
-                  style: TextStyle(color: Colors.black87, fontSize: 16),
-                  enabled: false,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  initialValue: widget.product?.stateName ?? '',
-                  decoration: InputDecoration(
-                    labelText: 'State',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    labelStyle: TextStyle(color: Colors.grey[700]),
-                  ),
-                  style: TextStyle(color: Colors.black87, fontSize: 16),
-                  enabled: false,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  initialValue: widget.product?.cityName ?? '',
-                  decoration: InputDecoration(
-                    labelText: 'City',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    labelStyle: TextStyle(color: Colors.grey[700]),
-                  ),
-                  style: TextStyle(color: Colors.black87, fontSize: 16),
-                  enabled: false,
-                ),
-              ],
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: _conditionController.text.isEmpty ? null : _conditionController.text,
-                  decoration: const InputDecoration(
-                    labelText: 'Condition',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'New', child: Text('New')),
-                    DropdownMenuItem(value: 'Like New', child: Text('Like New')),
-                    DropdownMenuItem(value: 'Good', child: Text('Good')),
-                    DropdownMenuItem(value: 'Fair', child: Text('Fair')),
-                    DropdownMenuItem(value: 'Poor', child: Text('Poor')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      _conditionController.text = value;
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a condition';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                LocationSelector(
-                  baseUrl: 'http://10.0.2.2:3000/api',
-                  selectedCountryId: _selectedCountryId,
-                  selectedStateId: _selectedStateId,
-                  selectedCityId: _selectedCityId,
-                  onCountrySelected: (value) {
-                    setState(() {
-                      _selectedCountryId = value;
-                      _selectedStateId = null;
-                      _selectedCityId = null;
-                    });
-                  },
-                  onStateSelected: (value) {
-                    setState(() {
-                      _selectedStateId = value;
-                      _selectedCityId = null;
-                    });
-                  },
-                  onCitySelected: (value) {
-                    setState(() => _selectedCityId = value);
-                  },
-                  isViewOnly: widget.isViewOnly,
-                ),
-              ],
+          DropdownButtonFormField<int>(
+            value: _selectedCategoryId,
+            decoration: InputDecoration(
+              labelText: 'Category',
+              border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.grey[100],
+              labelStyle: TextStyle(color: Colors.grey[700]),
             ),
+            items: _categories.map((category) {
+              return DropdownMenuItem<int>(
+                value: category.id,
+                child: Text(category.name),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedCategoryId = value;
+              });
+            },
+            validator: (value) {
+              if (value == null) {
+                return 'Please select a category';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DropdownButtonFormField<String>(
+                value: _conditionController.text.isEmpty ? null : _conditionController.text,
+                decoration: const InputDecoration(
+                  labelText: 'Condition',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'New', child: Text('New')),
+                  DropdownMenuItem(value: 'Like New', child: Text('Like New')),
+                  DropdownMenuItem(value: 'Good', child: Text('Good')),
+                  DropdownMenuItem(value: 'Fair', child: Text('Fair')),
+                  DropdownMenuItem(value: 'Poor', child: Text('Poor')),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    _conditionController.text = value;
+                  }
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a condition';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              LocationSelector(
+                selectedCountryId: _selectedCountryId,
+                selectedStateId: _selectedStateId,
+                selectedCityId: _selectedCityId,
+                onCountrySelected: _onCountrySelected,
+                onStateSelected: _onStateSelected,
+                onCitySelected: _onCitySelected,
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           if (_imageUrl != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                _imageUrl!,
+              child: CachedNetworkImage(
+                imageUrl: _imageUrl!,
                 height: 200,
                 fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => const Center(
+                  child: Icon(Icons.error, color: Colors.red),
+                ),
               ),
             ),
-          if (!widget.isViewOnly) ...[
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _pickAndUploadImage,
-              icon: const Icon(Icons.upload),
-              label: Text(_imageUrl == null ? 'Upload Image' : 'Change Image'),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _isLoading ? null : _pickAndUploadImage,
+            icon: const Icon(Icons.upload),
+            label: Text(_imageUrl == null ? 'Upload Image' : 'Change Image'),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _isLoading ? null : _submitForm,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-          ],
-          if (!widget.isViewOnly) ...[
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _submitForm,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: _isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(widget.product == null ? 'Create Product' : 'Update Product'),
-            ),
-          ],
+            child: _isLoading
+                ? const CircularProgressIndicator()
+                : Text(widget.product == null ? 'Create Product' : 'Update Product'),
+          ),
         ],
       ),
     );
+  }
+
+  void _onCountrySelected(Country? country) async {
+    if (country == null) return;
+    setState(() {
+      _selectedCountryId = country.id;
+      _selectedCountryName = country.name;
+      _selectedStateId = null;
+      _selectedStateName = null;
+      _selectedCityId = null;
+      _selectedCityName = null;
+    });
+    await context.read<LocationProvider>().loadStates(country.id);
+  }
+
+  void _onStateSelected(LocationState? state) async {
+    if (state == null) return;
+    setState(() {
+      _selectedStateId = state.id;
+      _selectedStateName = state.name;
+      _selectedCityId = null;
+      _selectedCityName = null;
+    });
+    await context.read<LocationProvider>().loadCities(state.id);
+  }
+
+  void _onCitySelected(City? city) {
+    if (city == null) return;
+    setState(() {
+      _selectedCityId = city.id;
+      _selectedCityName = city.name;
+    });
   }
 
   @override
@@ -495,30 +538,9 @@ class _SellScreenState extends State<SellScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isViewOnly 
-          ? 'View Product' 
-          : widget.product == null 
-            ? 'Add Product' 
-            : 'Edit Product'),
-        actions: [
-          if (widget.isViewOnly && widget.product != null)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SellScreen(
-                      product: widget.product,
-                      isViewOnly: false,
-                    ),
-                  ),
-                );
-              },
-            ),
-        ],
+        title: Text(widget.product == null ? 'Add Product' : 'Edit Product'),
       ),
-      body: widget.product != null || widget.isViewOnly
+      body: widget.product != null
           ? Padding(
               padding: const EdgeInsets.all(16.0),
               child: _buildAddProductForm(),

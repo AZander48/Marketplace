@@ -5,28 +5,28 @@ import '../services/location_service.dart';
 class LocationProvider with ChangeNotifier {
   final LocationService _locationService;
   List<Country> _countries = [];
-  List<State> _states = [];
+  List<LocationState> _states = [];
   List<City> _cities = [];
   bool _isLoading = false;
   String? _error;
 
-  LocationProvider({required LocationService locationService})
-      : _locationService = locationService;
+  LocationProvider(this._locationService);
 
   List<Country> get countries => _countries;
-  List<State> get states => _states;
+  List<LocationState> get states => _states;
   List<City> get cities => _cities;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
   Future<void> loadCountries() async {
+    if (_isLoading) return;
+    
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       _countries = await _locationService.getCountries();
-      _error = null;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -36,13 +36,14 @@ class LocationProvider with ChangeNotifier {
   }
 
   Future<void> loadStates(int countryId) async {
+    if (_isLoading) return;
+    
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       _states = await _locationService.getStates(countryId);
-      _error = null;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -52,13 +53,14 @@ class LocationProvider with ChangeNotifier {
   }
 
   Future<void> loadCities(int stateId) async {
+    if (_isLoading) return;
+    
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       _cities = await _locationService.getCities(stateId);
-      _error = null;
     } catch (e) {
       _error = e.toString();
     } finally {

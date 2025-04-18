@@ -30,14 +30,14 @@ class Country {
   }
 }
 
-class State {
+class LocationState {
   final int id;
   final int countryId;
   final String name;
   final String? code;
   final DateTime createdAt;
 
-  State({
+  LocationState({
     required this.id,
     required this.countryId,
     required this.name,
@@ -45,8 +45,8 @@ class State {
     required this.createdAt,
   });
 
-  factory State.fromJson(Map<String, dynamic> json) {
-    return State(
+  factory LocationState.fromJson(Map<String, dynamic> json) {
+    return LocationState(
       id: json['id'],
       countryId: json['country_id'],
       name: json['name'],
