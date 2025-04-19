@@ -29,6 +29,9 @@ class LocationSelector extends StatefulWidget {
 
 class _LocationSelectorState extends State<LocationSelector> {
   bool _isInitialized = false;
+  Country? _selectedCountry;
+  LocationState? _selectedState;
+  City? _selectedCity;
 
   @override
   void initState() {
@@ -78,12 +81,7 @@ class _LocationSelectorState extends State<LocationSelector> {
         return Column(
           children: [
             DropdownButtonFormField<Country>(
-              value: widget.selectedCountryId != null && locationProvider.countries.isNotEmpty
-                  ? locationProvider.countries.firstWhere(
-                      (c) => c.id == widget.selectedCountryId,
-                      orElse: () => locationProvider.countries.first,
-                    )
-                  : null,
+              value: _selectedCountry,
               decoration: const InputDecoration(
                 labelText: 'Country',
                 border: OutlineInputBorder(),
@@ -97,20 +95,23 @@ class _LocationSelectorState extends State<LocationSelector> {
               onChanged: widget.isViewOnly
                   ? null
                   : (Country? country) async {
-                      if (country != null && widget.onCountrySelected != null) {
-                        widget.onCountrySelected!(country);
+                      if (country != null) {
+                        setState(() {
+                          _selectedCountry = country;
+                          _selectedState = null;
+                          _selectedCity = null;
+                        });
                         await locationProvider.loadStates(country.id);
+                        locationProvider.clearCities();
+                        if (widget.onCountrySelected != null) {
+                          widget.onCountrySelected!(country);
+                        }
                       }
                     },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<LocationState>(
-              value: widget.selectedStateId != null && locationProvider.states.isNotEmpty
-                  ? locationProvider.states.firstWhere(
-                      (s) => s.id == widget.selectedStateId,
-                      orElse: () => locationProvider.states.first,
-                    )
-                  : null,
+              value: _selectedState,
               decoration: const InputDecoration(
                 labelText: 'State',
                 border: OutlineInputBorder(),
@@ -121,23 +122,24 @@ class _LocationSelectorState extends State<LocationSelector> {
                   child: Text(state.name),
                 );
               }).toList(),
-              onChanged: widget.isViewOnly
+              onChanged: widget.isViewOnly || _selectedCountry == null
                   ? null
                   : (LocationState? state) async {
-                      if (state != null && widget.onStateSelected != null) {
-                        widget.onStateSelected!(state);
+                      if (state != null) {
+                        setState(() {
+                          _selectedState = state;
+                          _selectedCity = null;
+                        });
                         await locationProvider.loadCities(state.id);
+                        if (widget.onStateSelected != null) {
+                          widget.onStateSelected!(state);
+                        }
                       }
                     },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<City>(
-              value: widget.selectedCityId != null && locationProvider.cities.isNotEmpty
-                  ? locationProvider.cities.firstWhere(
-                      (c) => c.id == widget.selectedCityId,
-                      orElse: () => locationProvider.cities.first,
-                    )
-                  : null,
+              value: _selectedCity,
               decoration: const InputDecoration(
                 labelText: 'City',
                 border: OutlineInputBorder(),
@@ -148,11 +150,16 @@ class _LocationSelectorState extends State<LocationSelector> {
                   child: Text(city.name),
                 );
               }).toList(),
-              onChanged: widget.isViewOnly
+              onChanged: widget.isViewOnly || _selectedState == null
                   ? null
                   : (City? city) {
-                      if (city != null && widget.onCitySelected != null) {
-                        widget.onCitySelected!(city);
+                      if (city != null) {
+                        setState(() {
+                          _selectedCity = city;
+                        });
+                        if (widget.onCitySelected != null) {
+                          widget.onCitySelected!(city);
+                        }
                       }
                     },
             ),

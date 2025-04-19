@@ -218,12 +218,33 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 // Product routes
 app.post('/api/products', authenticateToken, async (req, res) => {
   try {
-    const { title, description, price, category, condition, location, image_url } = req.body;
+    const { title, description, price, category_id, condition, city_id, image_url } = req.body;
     const result = await query(
-      'INSERT INTO products (user_id, title, description, price, category, condition, location, image_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [req.user.id, title, description, price, category, condition, location, image_url]
+      'INSERT INTO products (user_id, title, description, price, category_id, condition, city_id, image_url, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING *',
+      [req.user.id, title, description, price, category_id, condition, city_id, image_url]
     );
-    res.status(201).json(result.rows[0]);
+
+    // Get the full product details including related data
+    const fullProduct = await query(`
+      SELECT 
+        p.*, 
+        u.username as seller_name,
+        c.name as city_name,
+        s.name as state_name,
+        s.code as state_code,
+        co.name as country_name,
+        co.code as country_code,
+        cat.name as category_name
+      FROM products p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN cities c ON p.city_id = c.id
+      LEFT JOIN states s ON c.state_id = s.id
+      LEFT JOIN countries co ON s.country_id = co.id
+      LEFT JOIN categories cat ON p.category_id = cat.id
+      WHERE p.id = $1
+    `, [result.rows[0].id]);
+
+    res.status(201).json(fullProduct.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

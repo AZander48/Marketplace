@@ -4,6 +4,11 @@ import '../services/api_service.dart';
 import '../services/image_service.dart';
 import '../services/auth_service.dart';
 import '../models/product.dart';
+import '../services/category_service.dart';
+import '../providers/location_provider.dart';
+import '../models/category.dart';
+import '../models/location.dart';
+import '../widgets/location_selector.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -17,23 +22,53 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
-  final _categoryController = TextEditingController();
-  final _conditionController = TextEditingController();
-  final _locationController = TextEditingController();
   final _authService = AuthService();
+  final _categoryService = CategoryService();
   String? _imageUrl;
   bool _isLoading = false;
+  int? _selectedCategoryId;
+  String? _selectedCondition;
   int? _selectedCityId;
+  List<Category> _categories = [];
+  bool _loadingCategories = true;
+
+  final List<String> _conditions = [
+    'New',
+    'Like New',
+    'Good',
+    'Fair',
+    'Poor'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+    _initializeLocationData();
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
-    _categoryController.dispose();
-    _conditionController.dispose();
-    _locationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      setState(() => _loadingCategories = true);
+      final categories = await _categoryService.getCategories();
+      setState(() {
+        _categories = categories;
+        _loadingCategories = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading categories: $e')),
+      );
+      setState(() => _loadingCategories = false);
+    }
   }
 
   Future<void> _pickAndUploadImage() async {
@@ -56,6 +91,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedCategoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a category')),
+      );
+      return;
+    }
+
+    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    if (locationProvider.selectedCity == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a location')),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
     
@@ -72,9 +121,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         title: _titleController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
-        categoryId: int.parse(_categoryController.text),
-        condition: _conditionController.text,
-        cityId: _selectedCityId!,
+        categoryId: _selectedCategoryId!,
+        condition: _selectedCondition,
+        cityId: locationProvider.selectedCity!.id,
         imageUrl: _imageUrl,
         sellerName: currentUser.username,
         categoryName: '', // Will be set by the server
@@ -99,6 +148,97 @@ class _AddProductScreenState extends State<AddProductScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Future<void> _initializeLocationData() async {
+    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    await locationProvider.loadCountries();
+  }
+
+  Widget _buildLocationSection() {
+    return Consumer<LocationProvider>(
+      builder: (context, locationProvider, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Location', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            if (locationProvider.isLoading)
+              const CircularProgressIndicator()
+            else ...[
+              DropdownButtonFormField<Country>(
+                value: locationProvider.selectedCountry,
+                hint: const Text('Select Country'),
+                items: locationProvider.countries.map((country) {
+                  return DropdownMenuItem(
+                    value: country,
+                    child: Text(country.name),
+                  );
+                }).toList(),
+                onChanged: (country) {
+                  if (country != null) {
+                    locationProvider.selectCountry(country);
+                  }
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a country';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 8),
+              if (locationProvider.states.isNotEmpty)
+                DropdownButtonFormField<LocationState>(
+                  value: locationProvider.selectedState,
+                  hint: const Text('Select State'),
+                  items: locationProvider.states.map((state) {
+                    return DropdownMenuItem(
+                      value: state,
+                      child: Text(state.name),
+                    );
+                  }).toList(),
+                  onChanged: (state) {
+                    if (state != null) {
+                      locationProvider.selectState(state);
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a state';
+                    }
+                    return null;
+                  },
+                ),
+              if (locationProvider.cities.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                DropdownButtonFormField<City>(
+                  value: locationProvider.selectedCity,
+                  hint: const Text('Select City'),
+                  items: locationProvider.cities.map((city) {
+                    return DropdownMenuItem(
+                      value: city,
+                      child: Text(city.name),
+                    );
+                  }).toList(),
+                  onChanged: (city) {
+                    if (city != null) {
+                      locationProvider.selectCity(city);
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a city';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ],
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -152,6 +292,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 controller: _priceController,
                 decoration: const InputDecoration(
                   labelText: 'Price',
+                  prefixText: '\$',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.visiblePassword,
@@ -167,53 +308,47 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _categoryController,
+              DropdownButtonFormField<int>(
+                value: _selectedCategoryId,
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.visiblePassword,
-                textInputAction: TextInputAction.next,
+                items: _categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category.id,
+                    child: Text(category.name),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => _selectedCategoryId = value);
+                },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a category';
+                  if (value == null) {
+                    return 'Please select a category';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _conditionController,
+              DropdownButtonFormField<String>(
+                value: _selectedCondition,
                 decoration: const InputDecoration(
                   labelText: 'Condition',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.visiblePassword,
-                textInputAction: TextInputAction.next,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the condition';
-                  }
-                  return null;
+                items: _conditions.map((condition) {
+                  return DropdownMenuItem(
+                    value: condition,
+                    child: Text(condition),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => _selectedCondition = value);
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.visiblePassword,
-                textInputAction: TextInputAction.done,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the location';
-                  }
-                  return null;
-                },
-              ),
+              _buildLocationSection(),
               const SizedBox(height: 16),
               if (_imageUrl != null)
                 Image.network(

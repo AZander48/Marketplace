@@ -129,10 +129,10 @@ router.post('/', upload.single('image'), async (req, res) => {
       title,
       description,
       price,
-      category,
+      category_id,
       condition,
-      location,
-      userId,
+      city_id,
+      user_id,
     } = req.body;
 
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
@@ -140,22 +140,42 @@ router.post('/', upload.single('image'), async (req, res) => {
     const result = await pool.query(
       `INSERT INTO products (
         title, description, price, image_url, user_id, 
-        category, condition, location
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        category_id, condition, city_id, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING *`,
       [
         title,
         description,
         price,
         imageUrl,
-        userId,
-        category,
+        user_id,
+        category_id,
         condition,
-        location,
+        city_id,
       ]
     );
 
-    res.status(201).json(result.rows[0]);
+    // Get the full product details including related data
+    const fullProduct = await pool.query(`
+      SELECT 
+        p.*, 
+        u.username as seller_name,
+        c.name as city_name,
+        s.name as state_name,
+        s.code as state_code,
+        co.name as country_name,
+        co.code as country_code,
+        cat.name as category_name
+      FROM products p
+      LEFT JOIN users u ON p.user_id = u.id
+      LEFT JOIN cities c ON p.city_id = c.id
+      LEFT JOIN states s ON c.state_id = s.id
+      LEFT JOIN countries co ON s.country_id = co.id
+      LEFT JOIN categories cat ON p.category_id = cat.id
+      WHERE p.id = $1
+    `, [result.rows[0].id]);
+
+    res.status(201).json(fullProduct.rows[0]);
   } catch (error) {
     console.error('Error creating product:', error);
     res.status(500).json({ message: 'Error creating product' });

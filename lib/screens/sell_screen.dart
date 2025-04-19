@@ -390,7 +390,7 @@ class _SellScreenState extends State<SellScreen> {
                     }
                     return _buildProductCard(_userProducts[index - 1]);
                   },
-                ),
+      ),
     );
   }
 } 

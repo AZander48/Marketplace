@@ -10,6 +10,10 @@ class LocationProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  Country? _selectedCountry;
+  LocationState? _selectedState;
+  City? _selectedCity;
+
   LocationProvider(this._locationService);
 
   List<Country> get countries => _countries;
@@ -17,6 +21,33 @@ class LocationProvider with ChangeNotifier {
   List<City> get cities => _cities;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  Country? get selectedCountry => _selectedCountry;
+  LocationState? get selectedState => _selectedState;
+  City? get selectedCity => _selectedCity;
+
+  Future<void> selectCountry(Country country) async {
+    _selectedCountry = country;
+    _selectedState = null;
+    _selectedCity = null;
+    clearStates();
+    clearCities();
+    notifyListeners();
+    await loadStates(country.id);
+  }
+
+  Future<void> selectState(LocationState state) async {
+    _selectedState = state;
+    _selectedCity = null;
+    clearCities();
+    notifyListeners();
+    await loadCities(state.id);
+  }
+
+  void selectCity(City city) {
+    _selectedCity = city;
+    notifyListeners();
+  }
 
   Future<void> loadCountries() async {
     if (_isLoading) return;
@@ -86,6 +117,15 @@ class LocationProvider with ChangeNotifier {
 
   void clearCities() {
     _cities = [];
+    notifyListeners();
+  }
+
+  void clearSelection() {
+    _selectedCountry = null;
+    _selectedState = null;
+    _selectedCity = null;
+    clearStates();
+    clearCities();
     notifyListeners();
   }
 } 
