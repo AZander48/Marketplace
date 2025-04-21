@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/product.dart';
 import '../models/city.dart';
 import '../models/state.dart';
@@ -9,12 +10,30 @@ import '../models/country.dart';
 class ApiService {
   final String _baseUrl = 'http://10.0.2.2:3000/api';
   static const Duration timeout = Duration(seconds: 30);
+  static const String _tokenKey = 'auth_token';
+
+  Future<Map<String, String>> _getHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_tokenKey);
+    
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    
+    return headers;
+  }
 
   // Test database connection
   Future<Map<String, dynamic>> testConnection() async {
     try {
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/test-connection'),
+        headers: headers,
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
@@ -34,8 +53,10 @@ class ApiService {
   // Get all products
   Future<List<Product>> getProducts() async {
     try {
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/products'),
+        headers: headers,
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
@@ -56,8 +77,10 @@ class ApiService {
   // Get single product
   Future<Product> getProduct(int id) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/products/$id'),
+        headers: headers,
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
@@ -68,7 +91,6 @@ class ApiService {
     } on http.ClientException catch (e) {
       throw """Connection error: Please check if the server is running and 
         accessible:\n${e.message}""";
-
     } on FormatException catch (e) {
       throw 'Invalid response format from server:\n${e.message}';
     } catch (e) {
@@ -82,9 +104,10 @@ class ApiService {
   // Create new product
   Future<Product> createProduct(Product product) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.post(
         Uri.parse('$_baseUrl/products'),
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: json.encode(product.toJson()),
       ).timeout(timeout);
 
@@ -108,9 +131,10 @@ class ApiService {
 
   Future<Product> updateProduct(Product product) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.put(
         Uri.parse('$_baseUrl/products/${product.id}'),
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: json.encode(product.toJson()),
       ).timeout(timeout);
 
@@ -124,11 +148,32 @@ class ApiService {
     }
   }
 
+  Future<void> deleteProduct(int id) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/products/$id'),
+        headers: headers,
+      ).timeout(timeout);
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to delete product');
+      }
+    } catch (e) {
+      throw Exception('Error deleting product: $e');
+    }
+  }
+  
+
   // Search products
   Future<List<Product>> searchProducts(String query) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/products/search?query=$query'),
+        headers: headers,
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
@@ -149,8 +194,10 @@ class ApiService {
   // Get user's products
   Future<List<Product>> getUserProducts(int userId) async {
     try {
+      final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/products/user/$userId'),
+        headers: headers,
       ).timeout(timeout);
 
       if (response.statusCode == 200) {

@@ -1,42 +1,109 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
+import '../services/api_service.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'sell_screen.dart';
 import 'edit_product_screen.dart';
 import 'add_product_screen.dart';
+import '../providers/auth_provider.dart';
 
 class ViewProductScreen extends StatefulWidget {
-  final Product? product;
-
-  const ViewProductScreen({
-    super.key,
-    this.product,
-  });
+  const ViewProductScreen({super.key});
 
   @override
   State<ViewProductScreen> createState() => _ViewProductScreenState();
 }
 
 class _ViewProductScreenState extends State<ViewProductScreen> {
-  late Product _product;
+  final _apiService = ApiService();
+  Product? _product;
+  bool _isLoading = true;
+  String? _errorMessage;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _product = widget.product ?? Product(
-      id: 0,
-      userId: 0,
-      title: '',
-      description: '',
-      price: 0,
-      categoryId: 0,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _loadProduct();
+      _initialized = true;
+    }
+  }
+
+  Future<void> _loadProduct() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      // Get the product or product ID from the route arguments
+      final args = ModalRoute.of(context)?.settings.arguments;
+      
+      if (args is Product) {
+        // If we received a Product object directly
+        setState(() {
+          _product = args;
+          _isLoading = false;
+        });
+      } else if (args is int) {
+        // If we received a product ID
+        final product = await _apiService.getProduct(args);
+        if (mounted) {
+          setState(() {
+            _product = product;
+            _isLoading = false;
+          });
+        }
+      } else {
+        throw Exception('Invalid product data');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null || _product == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 60),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage ?? 'Product not found',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadProduct,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final product = _product!;
+
     return WillPopScope(
       onWillPop: () async {
         // Return the updated product when popping
@@ -48,23 +115,42 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
         appBar: AppBar(
           title: const Text('View Product'),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () async {
-                final updatedProduct = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditProductScreen(productId: _product.id),
-                  ),
-                );
-                
-                if (updatedProduct != null && mounted) {
-                  setState(() {
-                    _product = updatedProduct;
-                  });
-                }
-              },
-            ),
+            if (Provider.of<AuthProvider>(context).isLoggedIn)
+              if (Provider.of<AuthProvider>(context).currentUser?.id == product.userId)
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    final updatedProduct = await Navigator.pushNamed(
+                      context,
+                      '/edit',
+                      arguments: product.id,
+                    ) as Product?;
+                    
+                    if (updatedProduct != null && mounted) {
+                      setState(() {
+                        _product = updatedProduct;
+                      });
+                    }
+                  },
+                )
+              else
+                const SizedBox.shrink()
+            else
+              IconButton(
+                icon: const Icon(Icons.login),
+                onPressed: () async {
+                  final result = await Navigator.pushNamed(
+                    context,
+                    '/login',
+                    arguments: ModalRoute.of(context)?.settings.name,
+                  );
+                  
+                  if (result == true && mounted) {
+                    // User logged in successfully, reload the product to check ownership
+                    _loadProduct();
+                  }
+                },
+              ),
           ],
         ),
         body: SingleChildScrollView(
@@ -72,12 +158,11 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_product.imageUrl != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+              if (product.imageUrl != null && product.imageUrl!.isNotEmpty)
+                AspectRatio(
+                  aspectRatio: 1,
                   child: CachedNetworkImage(
-                    imageUrl: _product.imageUrl!,
-                    height: 200,
+                    imageUrl: product.imageUrl!,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => const Center(
                       child: CircularProgressIndicator(),
@@ -86,10 +171,18 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
                       child: Icon(Icons.error, color: Colors.red),
                     ),
                   ),
+                )
+              else
+                Container(
+                  height: 300,
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: Icon(Icons.image, size: 50, color: Colors.grey),
+                  ),
                 ),
               const SizedBox(height: 24),
               Text(
-                _product.title,
+                product.title,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -97,7 +190,7 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                '\$${_product.price.toStringAsFixed(2)}',
+                '\$${product.price.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 20,
                   color: Colors.green,
@@ -105,15 +198,19 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              if (_product.categoryName != null) ...[
-                _buildInfoRow('Category', _product.categoryName!),
-                const SizedBox(height: 8),
-              ],
-              if (_product.condition != null) ...[
-                _buildInfoRow('Condition', _product.condition!),
-                const SizedBox(height: 8),
-              ],
-              _buildInfoRow('Location', _product.formattedLocation),
+              Row(
+                children: [
+                  const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text(
+                    product.formattedLocation,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               const Text(
                 'Description',
@@ -124,7 +221,7 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                _product.description ?? 'No description provided',
+                product.description ?? 'No description provided',
                 style: const TextStyle(
                   fontSize: 16,
                   height: 1.5,

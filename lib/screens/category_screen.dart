@@ -143,11 +143,10 @@ class ProductCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (context) => ProductScreen(productId: product.id),
-            ),
+            '/product',
+            arguments: product.id,
           );
         },
         borderRadius: BorderRadius.circular(10),

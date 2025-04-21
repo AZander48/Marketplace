@@ -1,34 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
+import '../models/category.dart';
 import '../services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
+import '../services/category_service.dart';
 
 class EditProductScreen extends StatefulWidget {
-  final int productId;
-
-  const EditProductScreen({super.key, required this.productId});
+  const EditProductScreen({super.key});
 
   @override
   State<EditProductScreen> createState() => _EditProductScreenState();
 }
 
 class _EditProductScreenState extends State<EditProductScreen> {
-  final _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
-  final _priceController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _priceController = TextEditingController();
   final _conditionController = TextEditingController();
+  final _authService = AuthService();
+  final _categoryService = CategoryService();
+  String? _imageUrl;
+  bool _isLoading = false;
+  int? _selectedCategoryId;
+  List<Category> _categories = [];
+  bool _isLoadingCategories = true;
   Product? _product;
-  bool _isLoading = true;
-  String? _errorMessage;
+  bool _isLoadingProduct = true;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _loadProduct();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _loadProduct();
+      _loadCategories();
+      _initialized = true;
+    }
   }
 
   @override
@@ -43,28 +54,67 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Future<void> _loadProduct() async {
     try {
       setState(() {
-        _isLoading = true;
-        _errorMessage = null;
+        _isLoadingProduct = true;
       });
 
-      final product = await _apiService.getProduct(widget.productId);
+      // Get the product ID from the route arguments
+      final productId = ModalRoute.of(context)?.settings.arguments as int?;
       
-      if (mounted) {
+      if (productId == null) {
+        throw Exception('Product ID not provided');
+      }
+
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final product = await apiService.getProduct(productId);
+      
+      if (product != null) {
         setState(() {
           _product = product;
           _titleController.text = product.title;
+          _descriptionController.text = product.description ?? '';
           _priceController.text = product.price.toString();
-          _descriptionController.text = product.description;
           _conditionController.text = product.condition ?? '';
-          _isLoading = false;
+          _selectedCategoryId = product.categoryId;
+          _imageUrl = product.imageUrl;
+          _isLoadingProduct = false;
+        });
+      } else {
+        throw Exception('Product not found');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingProduct = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading product: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      setState(() {
+        _isLoadingCategories = true;
+      });
+
+      final categories = await _categoryService.getCategories();
+      
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+          _isLoadingCategories = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
+          _isLoadingCategories = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading categories: $e')),
+        );
       }
     }
   }
@@ -75,7 +125,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
     try {
       setState(() {
         _isLoading = true;
-        _errorMessage = null;
       });
 
       final updatedProduct = Product(
@@ -84,15 +133,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
         title: _titleController.text,
         description: _descriptionController.text,
         price: double.parse(_priceController.text),
-        categoryId: _product!.categoryId,
+        categoryId: _selectedCategoryId!,
         condition: _conditionController.text.isEmpty ? null : _conditionController.text,
         cityId: _product!.cityId,
-        imageUrl: _product!.imageUrl,
+        imageUrl: _imageUrl,
         createdAt: _product!.createdAt,
         updatedAt: DateTime.now(),
       );
 
-      await _apiService.updateProduct(updatedProduct);
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      await apiService.updateProduct(updatedProduct);
       
       if (mounted) {
         Navigator.pop(context, updatedProduct);
@@ -100,12 +150,63 @@ class _EditProductScreenState extends State<EditProductScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update product: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteProduct() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Product'),
+        content: const Text('Are you sure you want to delete this product? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      await apiService.deleteProduct(_product!.id);
+
+      if (mounted) {
+        // Navigate to root route (MainScreen) and remove all previous routes
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update product: ${e.toString()}'),
+            content: Text('Failed to delete product: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -113,15 +214,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (_isLoadingProduct) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (_errorMessage != null || _product == null) {
+    if (_product == null) {
       return Scaffold(
         appBar: AppBar(),
         body: Center(
@@ -131,7 +234,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               const Icon(Icons.error_outline, color: Colors.red, size: 60),
               const SizedBox(height: 16),
               Text(
-                _errorMessage ?? 'Product not found',
+                'Product not found',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
@@ -149,6 +252,32 @@ class _EditProductScreenState extends State<EditProductScreen> {
     final product = _product!;
     final authProvider = Provider.of<AuthProvider>(context);
 
+    // Check if user is logged in and doesn't own the product
+    if (!authProvider.isLoggedIn || authProvider.currentUser?.id != product.userId) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 60),
+              const SizedBox(height: 16),
+              const Text(
+                'You do not have permission to edit this product',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Go Back'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -157,6 +286,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
           IconButton(
             icon: const Icon(Icons.done),
             onPressed: _saveProduct,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _deleteProduct,
           ),
         ],
       ),

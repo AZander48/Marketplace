@@ -278,11 +278,10 @@ class _SellScreenState extends State<SellScreen> {
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: InkWell(
         onTap: () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (context) => ViewProductScreen(product: product),
-            ),
+            '/view',
+            arguments: product,
           );
         },
         child: Column(
@@ -347,49 +346,52 @@ class _SellScreenState extends State<SellScreen> {
       );
     }
 
+    if (widget.product != null) {
+      // Navigate to edit screen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(
+          context,
+          '/edit',
+          arguments: widget.product!.id,
+        );
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(widget.product == null ? 'Sell Product' : 'Edit Product'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context, widget.product);
-          },
-        ),
       ),
-      body: widget.product != null
-          ? EditProductScreen(productId: widget.product!.id)
-          : _userProducts.isEmpty
-              ? const AddProductScreen()
-              : ListView.builder(
-                  itemCount: _userProducts.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AddProductScreen(),
-                              ),
-                            ).then((newProduct) {
-                              if (newProduct != null && mounted) {
-                                setState(() {
-                                  _userProducts.add(newProduct);
-                                });
-                              }
-                            });
-                          },
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add New Product'),
-                        ),
-                      );
-                    }
-                    return _buildProductCard(_userProducts[index - 1]);
-                  },
+      body: _userProducts.isEmpty
+          ? const AddProductScreen()
+          : ListView.builder(
+              itemCount: _userProducts.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/add',
+                        ).then((newProduct) {
+                          if (newProduct != null && mounted) {
+                            // Reload all products to ensure we have the latest data
+                            _loadUserProducts();
+                          }
+                        });
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add New Product'),
+                    ),
+                  );
+                }
+                return _buildProductCard(_userProducts[index - 1]);
+              },
       ),
     );
   }

@@ -7,9 +7,7 @@ import '../providers/auth_provider.dart';
 import 'edit_product_screen.dart';
 
 class ProductScreen extends StatefulWidget {
-  final int productId;
-
-  const ProductScreen({super.key, required this.productId});
+  const ProductScreen({super.key});
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
@@ -20,11 +18,15 @@ class _ProductScreenState extends State<ProductScreen> {
   Product? _product;
   bool _isLoading = true;
   String? _errorMessage;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _loadProduct();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _loadProduct();
+      _initialized = true;
+    }
   }
 
   Future<void> _loadProduct() async {
@@ -34,7 +36,14 @@ class _ProductScreenState extends State<ProductScreen> {
         _errorMessage = null;
       });
 
-      final product = await _apiService.getProduct(widget.productId);
+      // Get the product ID from route arguments
+      final productId = ModalRoute.of(context)?.settings.arguments as int?;
+      
+      if (productId == null) {
+        throw Exception('Product ID not provided');
+      }
+
+      final product = await _apiService.getProduct(productId);
       
       if (mounted) {
         setState(() {
@@ -87,114 +96,111 @@ class _ProductScreenState extends State<ProductScreen> {
 
     final product = _product!;
     final authProvider = Provider.of<AuthProvider>(context);
+    final isOwner = authProvider.isLoggedIn && authProvider.currentUser?.id == product.userId;
 
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          if (authProvider.isLoggedIn && authProvider.currentUser?.id == product.userId)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditProductScreen(productId: widget.productId),
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Images
-            if (product.imageUrl != null && product.imageUrl!.isNotEmpty)
-              AspectRatio(
-                aspectRatio: 1,
-                child: CachedNetworkImage(
-                  imageUrl: product.imageUrl!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                  errorWidget: (context, url, error) => const Center(
-                    child: Icon(Icons.error, color: Colors.red),
-                  ),
-                ),
-              )
-            else
-              Container(
-                height: 300,
-                color: Colors.grey[200],
-                child: const Center(
-                  child: Icon(Icons.image, size: 50, color: Colors.grey),
-                ),
+    return WillPopScope(
+      onWillPop: () async {
+        // Return the updated product when popping
+        Navigator.pop(context, _product);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(product.title),
+          actions: [
+            if (isOwner)
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  final updatedProduct = await Navigator.pushNamed(
+                    context,
+                    '/edit',
+                    arguments: product.id,
+                  ) as Product?;
+                  
+                  if (updatedProduct != null && mounted) {
+                    setState(() {
+                      _product = updatedProduct;
+                    });
+                  }
+                },
               ),
-
-            // Product Details
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Price
-                  Text(
-                    '\$${product.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Product Images
+              if (product.imageUrl != null && product.imageUrl!.isNotEmpty)
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: CachedNetworkImage(
+                    imageUrl: product.imageUrl!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    errorWidget: (context, url, error) => const Center(
+                      child: Icon(Icons.error, color: Colors.red),
                     ),
                   ),
-                  const SizedBox(height: 8),
-
-                  // Title
-                  Text(
-                    product.title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                )
+              else
+                Container(
+                  height: 300,
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: Icon(Icons.image, size: 50, color: Colors.grey),
                   ),
-                  const SizedBox(height: 8),
+                ),
 
-                  // Location
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        product.formattedLocation,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
+              // Product Details
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Price
+                    Text(
+                      '\$${product.price.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description
-                  const Text(
-                    'Description',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product.description,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
-                  // Condition
-                  if (product.condition != null) ...[
+                    // Title
+                    Text(
+                      product.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Location
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(
+                          product.formattedLocation,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Description
                     const Text(
-                      'Condition',
+                      'Description',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -202,63 +208,80 @@ class _ProductScreenState extends State<ProductScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      product.condition!,
+                      product.description,
                       style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 16),
-                  ],
 
-                  // Seller Info
-                  const Text(
-                    'Seller Information',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    // Condition
+                    if (product.condition != null) ...[
+                      const Text(
+                        'Condition',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        product.condition!,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Seller Info
+                    const Text(
+                      'Seller Information',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.person),
+                    const SizedBox(height: 8),
+                    ListTile(
+                      leading: const CircleAvatar(
+                        child: Icon(Icons.person),
+                      ),
+                      title: Text(
+                        product.sellerName ?? 'Unknown Seller',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Member since ${product.createdAt.year}',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      onTap: () {
+                        // TODO: Navigate to seller profile
+                      },
                     ),
-                    title: Text(
-                      product.sellerName ?? 'Unknown Seller',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      'Member since ${product.createdAt.year}',
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    onTap: () {
-                      // TODO: Navigate to seller profile
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () {
-              if (!authProvider.isLoggedIn) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please login to contact the seller'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-              // TODO: Implement contact seller functionality
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                if (!authProvider.isLoggedIn) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please login to contact the seller'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                // TODO: Implement contact seller functionality
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text('Contact Seller'),
             ),
-            child: const Text('Contact Seller'),
           ),
         ),
       ),

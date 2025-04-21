@@ -5,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 import '../providers/auth_provider.dart';
-import 'add_product_screen.dart';
 import 'sell_screen.dart';
 import '../widgets/search_bar.dart';
 import '../providers/search_provider.dart';
@@ -348,11 +347,10 @@ class ProductCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (context) => ProductScreen(productId: product.id),
-            ),
+            '/product',
+            arguments: product.id,
           );
         },
         borderRadius: BorderRadius.circular(10),

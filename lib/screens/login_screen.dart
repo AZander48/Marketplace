@@ -16,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _rememberMe = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -44,41 +45,40 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _submitForm() async {
+  Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.login(
-        _emailController.text,
-        _passwordController.text,
-      );
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
 
-      if (_rememberMe) {
-        await StorageService.saveCredentials(
-          _emailController.text,
-          _passwordController.text,
-        );
-        await StorageService.setRememberMe(true);
-      } else {
-        await StorageService.clearCredentials();
-        await StorageService.setRememberMe(false);
-      }
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.login(_emailController.text, _passwordController.text);
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/');
+        // Get the screen index from arguments
+        final screenIndex = ModalRoute.of(context)?.settings.arguments as int?;
+        
+        // If there was a screen index, pop back to it with success
+        if (screenIndex != null) {
+          Navigator.pop(context, true);
+        } else {
+          // Otherwise go to home
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/',
+            (route) => false,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
       }
     }
   }
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _submitForm,
+                    onPressed: _isLoading ? null : _login,
                     child: _isLoading
                         ? const CircularProgressIndicator()
                         : const Text('Login'),

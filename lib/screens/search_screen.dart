@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../models/product.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
 
@@ -144,84 +145,93 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                color: Colors.grey[200],
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/view',
+          arguments: product,
+        );
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                  color: Colors.grey[200],
+                ),
+                child: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                        child: CachedNetworkImage(
+                          imageUrl: product.imageUrl!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                          errorWidget: (context, url, error) {
+                            return const Center(
+                              child: Icon(Icons.error, color: Colors.red),
+                            );
+                          },
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(Icons.image, size: 50, color: Colors.grey),
+                      ),
               ),
-              child: product.imageUrl != null && product.imageUrl!.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                      child: CachedNetworkImage(
-                        imageUrl: product.imageUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
-                        errorWidget: (context, url, error) {
-                          return const Center(
-                            child: Icon(Icons.error, color: Colors.red),
-                          );
-                        },
-                      ),
-                    )
-                  : const Center(
-                      child: Icon(Icons.image, size: 50, color: Colors.grey),
-                    ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '\$${product.price.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        product.formattedLocation,
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
-                  ],
-                ),
-              ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          product.formattedLocation,
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

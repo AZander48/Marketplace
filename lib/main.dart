@@ -9,6 +9,7 @@ import 'screens/login_screen.dart';
 import 'screens/view_product_screen.dart';
 import 'screens/add_product_screen.dart';
 import 'screens/edit_product_screen.dart';
+import 'screens/product_screen.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
@@ -101,11 +102,11 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const MainScreen(),
         '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
         '/sell': (context) => const SellScreen(),
         '/view': (context) => const ViewProductScreen(),
         '/add': (context) => const AddProductScreen(),
-        '/edit': (context) => const EditProductScreen(productId: 0),
+        '/edit': (context) => const EditProductScreen(),
+        '/product': (context) => const ProductScreen(),
       },
     );
   }
@@ -159,13 +160,26 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    // If not logged in, show login screen instead of the selected screen
-    final currentScreen = _selectedIndex == 2 && !_isLoggedIn || _selectedIndex == 3 && !_isLoggedIn
-        ? const LoginScreen()
-        : _screens[_selectedIndex];
+    // If not logged in and trying to access Sell or Profile, navigate to login
+    if (_selectedIndex == 2 && !_isLoggedIn || _selectedIndex == 3 && !_isLoggedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(
+          context,
+          '/login',
+          arguments: _selectedIndex,
+        ).then((result) {
+          if (result == true && mounted) {
+            setState(() {
+              _isLoggedIn = true;
+            });
+          }
+        });
+      });
+      return const LoginScreen(); // Show login screen directly
+    }
 
     return Scaffold(
-      body: currentScreen,
+      body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
