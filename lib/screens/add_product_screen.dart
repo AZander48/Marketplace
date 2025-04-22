@@ -125,7 +125,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         condition: _selectedCondition,
         cityId: locationProvider.selectedCity!.id,
         imageUrl: _imageUrl,
-        sellerName: currentUser.username,
+        sellerName: currentUser.name,
         categoryName: '', // Will be set by the server
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),

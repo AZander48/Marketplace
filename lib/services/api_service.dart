@@ -6,6 +6,7 @@ import '../models/product.dart';
 import '../models/city.dart';
 import '../models/state.dart';
 import '../models/country.dart';
+import '../models/user.dart';
 
 class ApiService {
   final String _baseUrl = 'http://10.0.2.2:3000/api';
@@ -291,6 +292,24 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Failed to load states: $e');
+    }
+  }
+
+  Future<List<User>> getInterestedBuyers(int productId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/products/$productId/interested'),
+        headers: await _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => User.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load interested buyers');
+      }
+    } catch (e) {
+      throw Exception('Error loading interested buyers: $e');
     }
   }
 

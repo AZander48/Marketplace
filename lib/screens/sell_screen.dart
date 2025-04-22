@@ -281,7 +281,7 @@ class _SellScreenState extends State<SellScreen> {
           Navigator.pushNamed(
             context,
             '/view',
-            arguments: product,
+            arguments: product.id,
           );
         },
         child: Column(

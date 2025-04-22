@@ -149,8 +149,8 @@ class ProductCard extends StatelessWidget {
       onTap: () {
         Navigator.pushNamed(
           context,
-          '/view',
-          arguments: product,
+          '/product',
+          arguments: product.id,
         );
       },
       child: Card(

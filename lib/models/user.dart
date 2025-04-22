@@ -1,7 +1,7 @@
 class User {
   final int id;
-  final String username;
-  final String email;
+  final String? name;
+  final String? email;
   final int? cityId;
   final String? profileImageUrl;
   final String? bio;
@@ -20,8 +20,8 @@ class User {
 
   User({
     required this.id,
-    required this.username,
-    required this.email,
+    this.name,
+    this.email,
     this.cityId,
     this.profileImageUrl,
     this.bio,
@@ -46,7 +46,7 @@ class User {
       final now = DateTime.now();
       return User(
         id: userData['id'],
-        username: userData['username'],
+        name: userData['name'],
         email: userData['email'],
         lastActive: now,
         createdAt: now,
@@ -58,7 +58,7 @@ class User {
     // Handle full user profile format
     return User(
       id: json['id'],
-      username: json['username'],
+      name: json['name'],
       email: json['email'],
       cityId: json['city_id'],
       profileImageUrl: json['profile_image_url'],
@@ -83,7 +83,7 @@ class User {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'username': username,
+      'name': name,
       'email': email,
       'city_id': cityId,
       'profile_image_url': profileImageUrl,
