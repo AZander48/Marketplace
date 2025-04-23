@@ -6,8 +6,8 @@ import { pool } from '../config/database.js';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
+// Export the middleware
+export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 

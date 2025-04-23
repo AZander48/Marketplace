@@ -1,6 +1,6 @@
 import express from 'express';
 import { pool } from '../config/database.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken } from './auth.js';
 
 const router = express.Router();
 
@@ -36,77 +36,95 @@ router.post('/interaction', authenticateToken, async (req, res) => {
 });
 
 // Get personalized recommendations
-router.get('/personalized', authenticateToken, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
+  const userId = req.user?.id; // Get authenticated user if available
+  
   try {
-    const userId = req.user.id;
+    let query;
+    const params = [];
 
-    // Get user preferences
-    const preferencesResult = await pool.query(
-      'SELECT * FROM user_preferences WHERE user_id = $1',
-      [userId]
-    );
+    if (userId) {
+      // Personalized recommendations for logged-in users
+      query = `
+        WITH UserPreferences AS (
+          SELECT 
+            preferred_categories,
+            preferred_price_range,
+            preferred_locations
+          FROM user_preferences
+          WHERE user_id = $1
+        ),
+        UserInteractions AS (
+          SELECT 
+            product_id,
+            COUNT(*) as interaction_count
+          FROM user_interactions
+          WHERE user_id = $1
+          GROUP BY product_id
+        ),
+        PopularProducts AS (
+          SELECT 
+            p.*,
+            COALESCE(pp.view_count, 0) as view_count,
+            COALESCE(pp.favorite_count, 0) as favorite_count
+          FROM products p
+          LEFT JOIN product_popularity pp ON p.id = pp.product_id
+          WHERE p.created_at >= NOW() - INTERVAL '30 days'
+        )
+        SELECT DISTINCT 
+          p.*,
+          u.username as seller_name,
+          c.name as category_name,
+          COALESCE(ui.interaction_count, 0) * 2 + 
+          COALESCE(pp.view_count, 0) * 0.3 + 
+          COALESCE(pp.favorite_count, 0) * 1.5 as relevance_score
+        FROM PopularProducts pp
+        JOIN products p ON p.id = pp.product_id
+        JOIN users u ON p.user_id = u.id
+        JOIN categories c ON p.category_id = c.id
+        LEFT JOIN UserInteractions ui ON p.id = ui.product_id
+        LEFT JOIN UserPreferences up ON TRUE
+        WHERE 
+          CASE 
+            WHEN up.preferred_categories IS NOT NULL 
+            THEN p.category_id = ANY(up.preferred_categories)
+            ELSE TRUE
+          END
+        AND
+          CASE 
+            WHEN up.preferred_price_range IS NOT NULL 
+            THEN p.price BETWEEN (up.preferred_price_range->>'min')::numeric 
+                             AND (up.preferred_price_range->>'max')::numeric
+            ELSE TRUE
+          END
+        ORDER BY relevance_score DESC
+        LIMIT 20;
+      `;
+      params.push(userId);
+    } else {
+      // Default recommendations for non-logged-in users based on popularity
+      query = `
+        SELECT 
+          p.*,
+          u.username as seller_name,
+          c.name as category_name,
+          COALESCE(pp.view_count, 0) * 0.3 + 
+          COALESCE(pp.favorite_count, 0) * 1.5 as relevance_score
+        FROM products p
+        JOIN users u ON p.user_id = u.id
+        JOIN categories c ON p.category_id = c.id
+        LEFT JOIN product_popularity pp ON p.id = pp.product_id
+        WHERE p.created_at >= NOW() - INTERVAL '30 days'
+        ORDER BY relevance_score DESC
+        LIMIT 20;
+      `;
+    }
 
-    const preferences = preferencesResult.rows[0] || {
-      preferred_categories: [],
-      preferred_price_range: { min: 0, max: 1000000 },
-      preferred_locations: []
-    };
-
-    // Get user's recent interactions
-    const interactionsResult = await pool.query(
-      `SELECT DISTINCT product_id, interaction_type 
-       FROM user_interactions 
-       WHERE user_id = $1 
-       ORDER BY created_at DESC 
-       LIMIT 10`,
-      [userId]
-    );
-
-    const interactedProductIds = interactionsResult.rows.map(row => row.product_id);
-
-    // Get recommendations based on:
-    // 1. User preferences
-    // 2. Popular products in preferred categories
-    // 3. Similar products to previously interacted items
-    const recommendations = await pool.query(
-      `WITH user_preferences AS (
-         SELECT 
-           COALESCE($2::jsonb, '[]'::jsonb) as categories,
-           COALESCE($3::jsonb, '{"min":0,"max":1000000}'::jsonb) as price_range,
-           COALESCE($4::jsonb, '[]'::jsonb) as locations
-       )
-       SELECT DISTINCT p.*, 
-              u.username as seller_name,
-              pp.view_count + pp.favorite_count * 2 + pp.purchase_count * 3 as popularity_score
-       FROM products p
-       JOIN users u ON p.user_id = u.id
-       JOIN product_popularity pp ON p.id = pp.product_id
-       CROSS JOIN user_preferences up
-       WHERE p.id NOT IN (${interactedProductIds.length > 0 ? interactedProductIds.join(',') : '0'})
-       AND (
-         -- Match preferred categories
-         p.category = ANY(up.categories::text[])
-         OR
-         -- Match preferred price range
-         (p.price BETWEEN (up.price_range->>'min')::numeric AND (up.price_range->>'max')::numeric)
-         OR
-         -- Match preferred locations
-         p.location = ANY(up.locations::text[])
-       )
-       ORDER BY popularity_score DESC, p.created_at DESC
-       LIMIT 20`,
-      [
-        userId,
-        preferences.preferred_categories,
-        preferences.preferred_price_range,
-        preferences.preferred_locations
-      ]
-    );
-
-    res.json(recommendations.rows);
+    const result = await pool.query(query, params);
+    res.json({ products: result.rows });
   } catch (error) {
     console.error('Error getting recommendations:', error);
-    res.status(500).json({ message: 'Error getting recommendations' });
+    res.status(500).json({ error: 'Failed to get recommendations' });
   }
 });
 

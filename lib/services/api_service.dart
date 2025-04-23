@@ -51,54 +51,106 @@ class ApiService {
     }
   }
 
-  // Get all products
-  Future<List<Product>> getProducts() async {
+  // Generic methods for different return types
+  Future<Map<String, dynamic>> get(String endpoint) async {
     try {
       final headers = await _getHeaders();
       final response = await http.get(
-        Uri.parse('$_baseUrl/products'),
+        Uri.parse('$_baseUrl$endpoint'),
         headers: headers,
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Product.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load products: ${response.statusCode}');
-      }
-    } on http.ClientException {
-      throw Exception('Request timed out. Please check your internet connection and try again.');
-    } on SocketException {
-      throw Exception('No internet connection. Please check your network and try again.');
-    } catch (e) {
-      throw Exception('Failed to load products: $e');
-    }
-  }
-
-  // Get single product
-  Future<Product> getProduct(int id) async {
-    try {
-      final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse('$_baseUrl/products/$id'),
-        headers: headers,
-      ).timeout(timeout);
-
-      if (response.statusCode == 200) {
-        return Product.fromJson(json.decode(response.body));
+        return json.decode(response.body);
       } else {
         throw _handleError(response.statusCode);
       }
-    } on http.ClientException catch (e) {
-      throw """Connection error: Please check if the server is running and 
-        accessible:\n${e.message}""";
-    } on FormatException catch (e) {
-      throw 'Invalid response format from server:\n${e.message}';
     } catch (e) {
-      if (e.toString().contains('timeout')) {
-        throw 'Connection timeout: Server is taking too long to respond';
-      }
-      throw 'An unexpected error occurred: $e';
+      _handleException(e);
+      rethrow;
+    }
+  }
+
+  // Generic method for List responses
+  Future<List<T>> getList<T>(String endpoint, T Function(Map<String, dynamic>) fromJson) async {
+    try {
+      final response = await get(endpoint);
+      final List<dynamic> data = response['data'] ?? response;
+      return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
+    } catch (e) {
+      _handleException(e);
+      rethrow;
+    }
+  }
+
+  // Generic method for single item responses
+  Future<T?> getOne<T>(String endpoint, T Function(Map<String, dynamic>) fromJson) async {
+    try {
+      final response = await get(endpoint);
+      return fromJson(response);
+    } catch (e) {
+      _handleException(e);
+      return null;
+    }
+  }
+
+  // Refactored methods using generic methods
+  Future<List<Product>> getProducts() async {
+    return getList('/products', Product.fromJson);
+  }
+
+  Future<Product?> getProduct(int id) async {
+    return getOne('/products/$id', Product.fromJson);
+  }
+
+  Future<List<Country>> getCountries() async {
+    return getList('/locations/countries', Country.fromJson);
+  }
+
+  Future<List<State>> getStatesByCountryId(int countryId) async {
+    return getList('/locations/states/$countryId', State.fromJson);
+  }
+
+  Future<City?> getCityById(int cityId) async {
+    return getOne('/locations/cities/$cityId', City.fromJson);
+  }
+
+  Future<State?> getStateById(int stateId) async {
+    return getOne('/locations/states/$stateId', State.fromJson);
+  }
+
+  Future<Country?> getCountryById(int countryId) async {
+    return getOne('/locations/countries/$countryId', Country.fromJson);
+  }
+
+  Future<List<User>> getInterestedBuyers(int productId) async {
+    return getList('/products/$productId/interested', User.fromJson);
+  }
+
+  void _handleException(dynamic e) {
+    if (e is http.ClientException) {
+      throw 'Connection error: Please check if the server is running and accessible';
+    } else if (e is FormatException) {
+      throw 'Invalid response format from server';
+    } else if (e.toString().contains('timeout')) {
+      throw 'Connection timeout: Server is taking too long to respond';
+    }
+  }
+
+  String _handleError(int statusCode) {
+    switch (statusCode) {
+      case 400:
+        return 'Bad request: Please check your input data';
+      case 401:
+        return 'Unauthorized: Please login again';
+      case 403:
+        return 'Forbidden: You don\'t have permission to access this resource';
+      case 404:
+        return 'Resource not found';
+      case 500:
+        return 'Server error: Please try again later';
+      default:
+        return 'HTTP error: $statusCode';
     }
   }
 
@@ -216,117 +268,23 @@ class ApiService {
     }
   }
 
-  Future<City?> getCityById(int cityId) async {
+  Future<User> updateUser(User user) async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/locations/cities/$cityId'),
+      final headers = await _getHeaders();
+      final response = await http.put(
+        Uri.parse('$_baseUrl/users/${user.id}'),
+        headers: headers,
+        body: json.encode(user.toJson()),
       ).timeout(timeout);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return City.fromJson(data);
-      }
-      return null;
-    } catch (e) {
-      print('Error getting city: $e');
-      return null;
-    }
-  }
-
-  Future<State?> getStateById(int stateId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/locations/states/$stateId'),
-      ).timeout(timeout);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return State.fromJson(data);
-      }
-      return null;
-    } catch (e) {
-      print('Error getting state: $e');
-      return null;
-    }
-  }
-
-  Future<Country?> getCountryById(int countryId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/locations/countries/$countryId'),
-      ).timeout(timeout);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return Country.fromJson(data);
-      }
-      return null;
-    } catch (e) {
-      print('Error getting country: $e');
-      return null;
-    }
-  }
-
-  Future<List<Country>> getCountries() async {
-    try {
-      final response = await http.get(Uri.parse('$_baseUrl/locations/countries'));
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Country.fromJson(json)).toList();
+        return User.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to load countries: ${response.statusCode}');
+        throw _handleError(response.statusCode);
       }
     } catch (e) {
-      throw Exception('Failed to load countries: $e');
-    }
-  }
-
-  Future<List<State>> getStatesByCountryId(int countryId) async {
-    try {
-      final response = await http.get(Uri.parse('$_baseUrl/locations/states/$countryId'));
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => State.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load states: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to load states: $e');
-    }
-  }
-
-  Future<List<User>> getInterestedBuyers(int productId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/products/$productId/interested'),
-        headers: await _getHeaders(),
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => User.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load interested buyers');
-      }
-    } catch (e) {
-      throw Exception('Error loading interested buyers: $e');
-    }
-  }
-
-  String _handleError(int statusCode) {
-    switch (statusCode) {
-      case 400:
-        return 'Bad request: Please check your input data';
-      case 401:
-        return 'Unauthorized: Please login again';
-      case 403:
-        return 'Forbidden: You don\'t have permission to access this resource';
-      case 404:
-        return 'Resource not found';
-      case 500:
-        return 'Server error: Please try again later';
-      default:
-        return 'HTTP error: $statusCode';
+      _handleException(e);
+      rethrow;
     }
   }
 } 

@@ -5,6 +5,8 @@ import 'screens/home_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/sell_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/edit_profile_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/view_product_screen.dart';
 import 'screens/add_product_screen.dart';
@@ -105,8 +107,9 @@ class MyApp extends StatelessWidget {
         '/sell': (context) => const SellScreen(),
         '/view': (context) => const ViewProductScreen(),
         '/add': (context) => const AddProductScreen(),
-        '/edit': (context) => const EditProductScreen(),
         '/product': (context) => const ProductScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/settings': (context) => const SettingsScreen(),
       },
     );
   }
@@ -160,32 +163,30 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    // If not logged in and trying to access Sell or Profile, navigate to login
-    if (_selectedIndex == 2 && !_isLoggedIn || _selectedIndex == 3 && !_isLoggedIn) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(
-          context,
-          '/login',
-          arguments: _selectedIndex,
-        ).then((result) {
-          if (result == true && mounted) {
-            setState(() {
-              _isLoggedIn = true;
-            });
-          }
-        });
-      });
-      return const LoginScreen(); // Show login screen directly
-    }
-
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          // If trying to access Sell or Profile while not logged in, show login
+          if ((index == 2 || index == 3) && !_isLoggedIn) {
+            Navigator.pushNamed(
+              context,
+              '/login',
+              arguments: index,
+            ).then((result) {
+              if (result == true && mounted) {
+                setState(() {
+                  _isLoggedIn = true;
+                  _selectedIndex = index;
+                });
+              }
+            });
+          } else {
+            setState(() {
+              _selectedIndex = index;
+            });
+          }
         },
         type: BottomNavigationBarType.fixed,
         items: const [

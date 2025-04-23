@@ -12,6 +12,7 @@ import '../services/category_service.dart';
 import '../models/category.dart';
 import 'category_screen.dart';
 import 'product_screen.dart';
+import '../services/recommendation_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,18 +24,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
   final _categoryService = CategoryService();
+  final RecommendationService _recommendationService = RecommendationService();
   List<Category> _categories = [];
   Map<int, List<Product>> _categoryProducts = {};
   bool _isLoading = true;
   String? _errorMessage;
   final _searchController = TextEditingController();
   final _focusNode = FocusNode();
-
+  List<Product> _recommendedProducts = [];
 
   @override
   void initState() {
     super.initState();
     _loadCategories();
+    _loadRecommendations();
   }
 
   @override
@@ -88,6 +91,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _loadRecommendations() async {
+    try {
+      final recommendations = await _recommendationService.getRecommendedProducts();
+      if (mounted) {
+        setState(() {
+          _recommendedProducts = recommendations;
+        });
+      }
+    } catch (e) {
+      print('Error loading recommendations: $e');
+    }
+  }
+
   Future<void> _onSearch(String query) async {
     final searchProvider = Provider.of<SearchProvider>(context, listen: false);
     if (query.isNotEmpty) {
@@ -126,6 +142,17 @@ class _HomeScreenState extends State<HomeScreen> {
           autofocus: false,
         ),
         actions: [
+          if (!authProvider.isLoggedIn)
+            IconButton(
+              icon: const Icon(Icons.login),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/login',
+                );
+              },
+              tooltip: 'Login',
+            ),
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {},
@@ -186,60 +213,89 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.all(16),
-      itemCount: _categories.length,
-      itemBuilder: (context, index) {
-        final category = _categories[index];
-        final products = _categoryProducts[category.id] ?? [];
+      children: [
+        // Add Recommendations Section if user is logged in
+        if (_recommendedProducts.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'Recommended for You',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _recommendedProducts.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  width: 150,
+                  margin: const EdgeInsets.only(right: 16),
+                  child: ProductCard(product: _recommendedProducts[index]),
+                );
+              },
+            ),
+          ),
+        ],
+        // Existing categories list
+        ...List.generate(_categories.length, (index) {
+          final category = _categories[index];
+          final products = _categoryProducts[category.id] ?? [];
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    category.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      category.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CategoryScreen(category: category),
-                        ),
-                      );
-                    },
-                    child: const Text('See All'),
-                  ),
-                ],
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CategoryScreen(category: category),
+                          ),
+                        );
+                      },
+                      child: const Text('See All'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: 200,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: products.length,
-                itemBuilder: (context, productIndex) {
-                  final product = products[productIndex];
-                  return Container(
-                    width: 150,
-                    margin: const EdgeInsets.only(right: 16),
-                    child: ProductCard(product: product),
-                  );
-                },
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: products.length,
+                  itemBuilder: (context, productIndex) {
+                    final product = products[productIndex];
+                    return Container(
+                      width: 150,
+                      margin: const EdgeInsets.only(right: 16),
+                      child: ProductCard(product: product),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        }),
+      ],
     );
   }
 
