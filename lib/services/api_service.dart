@@ -169,10 +169,10 @@ class ApiService {
       } else {
         throw _handleError(response.statusCode);
       }
-    } on http.ClientException catch (e) {
+    } on http.ClientException {
       throw 'Connection error: Please check if the server is running '
           'and accessible';
-    } on FormatException catch (e) {
+    } on FormatException {
       throw 'Invalid response format from server';
     } catch (e) {
       if (e.toString().contains('timeout')) {

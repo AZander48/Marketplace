@@ -4,19 +4,18 @@ import '../providers/auth_provider.dart';
 import '../services/storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _rememberMe = false;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -51,7 +50,6 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       setState(() {
         _isLoading = true;
-        _errorMessage = null;
       });
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -76,9 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
           _isLoading = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

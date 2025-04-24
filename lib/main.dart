@@ -6,12 +6,13 @@ import 'screens/search_screen.dart';
 import 'screens/sell_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/edit_profile_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/view_product_screen.dart';
 import 'screens/add_product_screen.dart';
-import 'screens/edit_product_screen.dart';
 import 'screens/product_screen.dart';
+import 'screens/edit_product_screen.dart';
+import 'screens/category_screen.dart';
+import 'screens/edit_profile_screen.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
@@ -19,7 +20,6 @@ import 'providers/search_provider.dart';
 import 'providers/location_provider.dart';
 import 'services/location_service.dart';
 import 'package:http/http.dart' as http;
-import 'models/product.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaleFactor: 1.0,
+            textScaler: const TextScaler.linear(1.0),
             alwaysUse24HourFormat: true,
             viewInsets: MediaQuery.of(context).viewInsets,
           ),
@@ -110,6 +110,9 @@ class MyApp extends StatelessWidget {
         '/product': (context) => const ProductScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/edit': (context) => const EditProductScreen(),
+        '/category': (context) => const CategoryScreen(),
+        '/edit-profile': (context) => const EditProfileScreen(),
       },
     );
   }

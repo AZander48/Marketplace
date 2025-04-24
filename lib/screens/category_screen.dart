@@ -3,12 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import '../services/category_service.dart';
-import '../screens/product_screen.dart';
 
 class CategoryScreen extends StatefulWidget {
-  final Category category;
-
-  const CategoryScreen({super.key, required this.category});
+  const CategoryScreen({super.key});
 
   @override
   State<CategoryScreen> createState() => _CategoryScreenState();
@@ -22,15 +19,21 @@ class _CategoryScreenState extends State<CategoryScreen> {
   int _offset = 0;
   static const int _limit = 20;
   bool _hasMore = true;
+  Category? _category;
 
   @override
-  void initState() {
-    super.initState();
-    _loadProducts();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_category == null) {
+      _category = ModalRoute.of(context)?.settings.arguments as Category?;
+      if (_category != null) {
+        _loadProducts();
+      }
+    }
   }
 
   Future<void> _loadProducts() async {
-    if (!_hasMore) return;
+    if (!_hasMore || _category == null) return;
 
     try {
       setState(() {
@@ -39,7 +42,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       });
 
       final result = await _categoryService.getCategoryProducts(
-        widget.category.id,
+        _category!.id,
         limit: _limit,
         offset: _offset,
       );
@@ -64,9 +67,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_category == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Category not found'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category.name),
+        title: Text(_category!.name),
       ),
       body: _buildBody(),
     );

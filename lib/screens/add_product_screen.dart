@@ -8,16 +8,15 @@ import '../services/category_service.dart';
 import '../providers/location_provider.dart';
 import '../models/category.dart';
 import '../models/location.dart';
-import '../widgets/location_selector.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
 
   @override
-  _AddProductScreenState createState() => _AddProductScreenState();
+  AddProductScreenState createState() => AddProductScreenState();
 }
 
-class _AddProductScreenState extends State<AddProductScreen> {
+class AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -28,7 +27,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
   bool _isLoading = false;
   int? _selectedCategoryId;
   String? _selectedCondition;
-  int? _selectedCityId;
   List<Category> _categories = [];
   bool _loadingCategories = true;
 
@@ -59,11 +57,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
     try {
       setState(() => _loadingCategories = true);
       final categories = await _categoryService.getCategories();
+      if (!mounted) return;
       setState(() {
         _categories = categories;
         _loadingCategories = false;
       });
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading categories: $e')),
       );
@@ -77,15 +77,19 @@ class _AddProductScreenState extends State<AddProductScreen> {
     
     try {
       final imageUrl = await imageService.pickAndUploadImage();
+      if (!mounted) return;
       if (imageUrl != null) {
         setState(() => _imageUrl = imageUrl);
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error uploading image: $e')),
       );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -111,6 +115,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     try {
       // Get current user
       final currentUser = await _authService.getCurrentUser();
+      if (!mounted) return;
       if (currentUser == null) {
         throw Exception('User not logged in');
       }
@@ -134,15 +139,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final apiService = Provider.of<ApiService>(context, listen: false);
       final newProduct = await apiService.createProduct(product);
       
-      if (mounted) {
-        Navigator.pop(context, newProduct);
-      }
+      if (!mounted) return;
+      Navigator.pop(context, newProduct);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating product: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error creating product: $e')),
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -308,28 +311,36 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                value: _selectedCategoryId,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
+              if (_loadingCategories)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else
+                DropdownButtonFormField<int>(
+                  value: _selectedCategoryId,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _categories.map((category) {
+                    return DropdownMenuItem(
+                      value: category.id,
+                      child: Text(category.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => _selectedCategoryId = value);
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a category';
+                    }
+                    return null;
+                  },
                 ),
-                items: _categories.map((category) {
-                  return DropdownMenuItem(
-                    value: category.id,
-                    child: Text(category.name),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() => _selectedCategoryId = value);
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select a category';
-                  }
-                  return null;
-                },
-              ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedCondition,

@@ -11,7 +11,6 @@ import '../providers/search_provider.dart';
 import '../services/category_service.dart';
 import '../models/category.dart';
 import 'category_screen.dart';
-import 'product_screen.dart';
 import '../services/recommendation_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _categoryService = CategoryService();
   final RecommendationService _recommendationService = RecommendationService();
   List<Category> _categories = [];
-  Map<int, List<Product>> _categoryProducts = {};
+  final Map<int, List<Product>> _categoryProducts = {};
   bool _isLoading = true;
   String? _errorMessage;
   final _searchController = TextEditingController();
@@ -87,7 +86,11 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error loading products for category $categoryId: $e');
+      if (mounted) {
+        setState(() {
+          _categoryProducts[categoryId] = []; // Set empty list on error
+        });
+      }
     }
   }
 
@@ -100,7 +103,11 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error loading recommendations: $e');
+      if (mounted) {
+        setState(() {
+          _recommendedProducts = []; // Set empty list on error
+        });
+      }
     }
   }
 
@@ -319,72 +326,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       }
-    }
-  }
-
-  Widget _buildCategoryCard(Category category) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryScreen(category: category),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _getCategoryIcon(category.name),
-              size: 40,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              category.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  IconData _getCategoryIcon(String categoryName) {
-    switch (categoryName.toLowerCase()) {
-      case 'electronics':
-        return Icons.electrical_services;
-      case 'clothing':
-        return Icons.checkroom;
-      case 'furniture':
-        return Icons.chair;
-      case 'books':
-        return Icons.menu_book;
-      case 'sports':
-        return Icons.sports_soccer;
-      case 'toys':
-        return Icons.toys;
-      case 'automotive':
-        return Icons.directions_car;
-      case 'home':
-        return Icons.home;
-      case 'beauty':
-        return Icons.face;
-      case 'other':
-        return Icons.category;
-      default:
-        return Icons.category;
     }
   }
 }

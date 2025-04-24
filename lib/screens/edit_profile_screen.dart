@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  final User user;
-
-  const EditProfileScreen({super.key, required this.user});
+  const EditProfileScreen({super.key});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -20,13 +18,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _bioController;
   late TextEditingController _phoneController;
   bool _isLoading = false;
+  User? _user;
 
   @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.user.name);
-    _bioController = TextEditingController(text: widget.user.bio);
-    _phoneController = TextEditingController(text: widget.user.phoneNumber);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_user == null) {
+      _user = ModalRoute.of(context)?.settings.arguments as User?;
+      if (_user != null) {
+        _nameController = TextEditingController(text: _user!.name);
+        _bioController = TextEditingController(text: _user!.bio);
+        _phoneController = TextEditingController(text: _user!.phoneNumber);
+      }
+    }
   }
 
   @override
@@ -38,30 +42,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate() || _user == null) return;
 
     setState(() => _isLoading = true);
 
     try {
       final updatedUser = User(
-        id: widget.user.id,
+        id: _user!.id,
         name: _nameController.text,
-        email: widget.user.email,
-        cityId: widget.user.cityId,
-        profileImageUrl: widget.user.profileImageUrl,
+        email: _user!.email,
+        cityId: _user!.cityId,
+        profileImageUrl: _user!.profileImageUrl,
         bio: _bioController.text,
         phoneNumber: _phoneController.text,
-        isVerified: widget.user.isVerified,
-        lastActive: widget.user.lastActive,
-        createdAt: widget.user.createdAt,
+        isVerified: _user!.isVerified,
+        lastActive: _user!.lastActive,
+        createdAt: _user!.createdAt,
         updatedAt: DateTime.now(),
-        cityName: widget.user.cityName,
-        stateName: widget.user.stateName,
-        stateCode: widget.user.stateCode,
-        countryName: widget.user.countryName,
-        countryCode: widget.user.countryCode,
-        locationPreferences: widget.user.locationPreferences,
-        token: widget.user.token,
+        cityName: _user!.cityName,
+        stateName: _user!.stateName,
+        stateCode: _user!.stateCode,
+        countryName: _user!.countryName,
+        countryCode: _user!.countryCode,
+        locationPreferences: _user!.locationPreferences,
+        token: _user!.token,
       );
 
       await _apiService.updateUser(updatedUser);
@@ -84,6 +88,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_user == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('User not found'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
