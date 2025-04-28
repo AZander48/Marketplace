@@ -11,17 +11,12 @@
   <component name="ChangeListManager">
     <list default="true" id="87c51397-5af3-4a6c-982b-eb3d1c953aaf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/add_product_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/add_product_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/category_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/category_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/edit_product_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/edit_product_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/edit_profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/edit_profile_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/sql/create_tables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/sql/create_tables.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/sql/insert_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/sql/insert_data.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/login_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screens/product_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/product_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/sell_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/sell_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/view_product_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/view_product_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/profile_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/services/api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/api_service.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +52,7 @@
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/Alexzander/Documents/program_data/flutter/flutter_windows_3.29.3-stable/bin/cache/dart-sdk&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;dart.settings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;,
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>

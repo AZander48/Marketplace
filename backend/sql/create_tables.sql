@@ -1,4 +1,6 @@
 drop table if exists notifications;
+drop table if exists messages;
+drop table if exists saved_products;
 drop table if exists reviews;
 drop table if exists orders;
 drop table if exists search_history;
@@ -192,6 +194,25 @@ CREATE TABLE user_location_preferences (
     UNIQUE(user_id, city_id)
 );
 
+CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE saved_products (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, product_id)
+);
+
 -- Create index for faster notification queries
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
@@ -258,3 +279,14 @@ CREATE INDEX idx_user_suspensions_user_id ON user_suspensions(user_id);
 CREATE INDEX idx_users_city_id ON users(city_id);
 CREATE INDEX idx_user_location_preferences_user_id ON user_location_preferences(user_id);
 CREATE INDEX idx_user_location_preferences_city_id ON user_location_preferences(city_id);
+
+-- Indexes for faster message queries
+CREATE INDEX idx_messages_sender_id ON messages(sender_id);
+CREATE INDEX idx_messages_receiver_id ON messages(receiver_id);
+CREATE INDEX idx_messages_product_id ON messages(product_id);
+CREATE INDEX idx_messages_created_at ON messages(created_at);
+
+-- Indexes for faster saved products queries
+CREATE INDEX idx_saved_products_user_id ON saved_products(user_id);
+CREATE INDEX idx_saved_products_product_id ON saved_products(product_id);
+

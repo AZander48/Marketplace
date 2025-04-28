@@ -15,6 +15,7 @@ import categoryRoutes from './routes/categories.js';
 import locationRoutes from './routes/locations.js';
 import recommendationsRouter from './routes/recommendations.js';
 import usersRouter from './routes/users.js';
+import messagesRouter from './routes/messages.js';
 
 // Load environment variables
 dotenv.config();
@@ -87,6 +88,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/recommendations', recommendationsRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/messages', authenticateToken, messagesRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

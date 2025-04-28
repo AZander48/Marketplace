@@ -4,6 +4,7 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../screens/message_screen.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -272,7 +273,12 @@ class _ProductScreenState extends State<ProductScreen> {
                 );
                 return;
               }
-              // TODO: Implement contact seller functionality
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MessageScreen(product: product),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),

@@ -5,8 +5,6 @@ import '../models/user.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 import '../widgets/product_grid.dart';
-import 'edit_profile_screen.dart';
-import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -68,12 +66,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               IconButton(
                 icon: const Icon(Icons.settings),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
+                    Navigator.pushNamed(
+                      context,
+                      '/settings',
+                    );
                 },
               ),
             ],
@@ -112,11 +108,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: () async {
-                            final result = await Navigator.push(
+                            final result = await Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => EditProfileScreen(user: user),
-                              ),
+                              '/edit_profile',
+                              arguments: user,
                             );
                             if (result == true) {
                               _loadUserProducts();

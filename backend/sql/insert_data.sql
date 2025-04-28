@@ -250,3 +250,18 @@ INSERT INTO user_location_preferences (user_id, city_id, is_primary) VALUES
 (4, 4, true),
 (4, 3, false);
 
+-- Insert sample messages
+INSERT INTO messages (sender_id, receiver_id, product_id, message) VALUES
+(1, 2, 1, 'Hello, I''m interested in your iPhone 13 Pro. Can you tell me more about it?'),
+(2, 1, 1, 'Sure, I can send you more details. What''s your name?'),
+(1, 2, 1, 'My name is John Doe. Can you send me the details?'),
+(2, 1, 1, 'Absolutely, I''ll send you the details right away.');
+
+-- Insert sample saved products
+INSERT INTO saved_products (user_id, product_id) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4);
+
+

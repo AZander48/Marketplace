@@ -10,10 +10,10 @@ import '../models/user.dart';
 
 class ApiService {
   final String _baseUrl = 'http://10.0.2.2:3000/api';
-  static const Duration timeout = Duration(seconds: 30);
+  static const Duration timeout = Duration(minutes: 2);
   static const String _tokenKey = 'auth_token';
 
-  Future<Map<String, String>> _getHeaders() async {
+  Future<Map<String, String>> getHeaders() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString(_tokenKey);
     
@@ -31,7 +31,7 @@ class ApiService {
   // Test database connection
   Future<Map<String, dynamic>> testConnection() async {
     try {
-      final headers = await _getHeaders();
+      final headers = await getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/test-connection'),
         headers: headers,
@@ -54,7 +54,7 @@ class ApiService {
   // Generic methods for different return types
   Future<Map<String, dynamic>> get(String endpoint) async {
     try {
-      final headers = await _getHeaders();
+      final headers = await getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl$endpoint'),
         headers: headers,
@@ -74,9 +74,25 @@ class ApiService {
   // Generic method for List responses
   Future<List<T>> getList<T>(String endpoint, T Function(Map<String, dynamic>) fromJson) async {
     try {
-      final response = await get(endpoint);
-      final List<dynamic> data = response['data'] ?? response;
-      return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: headers,
+      ).timeout(timeout);
+
+      if (response.statusCode == 200) {
+        final dynamic data = json.decode(response.body);
+        if (data is List) {
+          return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
+        } else if (data is Map<String, dynamic>) {
+          final listData = data['data'] ?? [];
+          return (listData as List).map((json) => fromJson(json as Map<String, dynamic>)).toList();
+        } else {
+          throw Exception('Unexpected response format');
+        }
+      } else {
+        throw _handleError(response.statusCode);
+      }
     } catch (e) {
       _handleException(e);
       rethrow;
@@ -157,53 +173,27 @@ class ApiService {
   // Create new product
   Future<Product> createProduct(Product product) async {
     try {
-      final headers = await _getHeaders();
-      final response = await http.post(
-        Uri.parse('$_baseUrl/products'),
-        headers: headers,
-        body: json.encode(product.toJson()),
-      ).timeout(timeout);
-
-      if (response.statusCode == 201) {
-        return Product.fromJson(json.decode(response.body));
-      } else {
-        throw _handleError(response.statusCode);
-      }
-    } on http.ClientException {
-      throw 'Connection error: Please check if the server is running '
-          'and accessible';
-    } on FormatException {
-      throw 'Invalid response format from server';
+      final response = await post('/products', product.toJson());
+      return Product.fromJson(response);
     } catch (e) {
-      if (e.toString().contains('timeout')) {
-        throw 'Connection timeout: Server is taking too long to respond';
-      }
-      throw 'An unexpected error occurred: $e';
+      _handleException(e);
+      rethrow;
     }
   }
 
   Future<Product> updateProduct(Product product) async {
     try {
-      final headers = await _getHeaders();
-      final response = await http.put(
-        Uri.parse('$_baseUrl/products/${product.id}'),
-        headers: headers,
-        body: json.encode(product.toJson()),
-      ).timeout(timeout);
-
-      if (response.statusCode == 200) {
-        return Product.fromJson(json.decode(response.body));
-      } else {
-        throw Exception('Failed to update product');
-      }
+      final response = await put('/products/${product.id}', product.toJson());
+      return Product.fromJson(response);
     } catch (e) {
-      throw Exception('Error updating product: $e');
+      _handleException(e);
+      rethrow;
     }
   }
 
   Future<void> deleteProduct(int id) async {
     try {
-      final headers = await _getHeaders();
+      final headers = await getHeaders();
       final response = await http.delete(
         Uri.parse('$_baseUrl/products/$id'),
         headers: headers,
@@ -223,7 +213,7 @@ class ApiService {
   // Search products
   Future<List<Product>> searchProducts(String query) async {
     try {
-      final headers = await _getHeaders();
+      final headers = await getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/products/search?query=$query'),
         headers: headers,
@@ -247,7 +237,7 @@ class ApiService {
   // Get user's products
   Future<List<Product>> getUserProducts(int userId) async {
     try {
-      final headers = await _getHeaders();
+      final headers = await getHeaders();
       final response = await http.get(
         Uri.parse('$_baseUrl/products/user/$userId'),
         headers: headers,
@@ -270,7 +260,7 @@ class ApiService {
 
   Future<User> updateUser(User user) async {
     try {
-      final headers = await _getHeaders();
+      final headers = await getHeaders();
       final response = await http.put(
         Uri.parse('$_baseUrl/users/${user.id}'),
         headers: headers,
@@ -279,6 +269,46 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return User.fromJson(json.decode(response.body));
+      } else {
+        throw _handleError(response.statusCode);
+      }
+    } catch (e) {
+      _handleException(e);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.post(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: headers,
+        body: json.encode(data),
+      ).timeout(timeout);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw _handleError(response.statusCode);
+      }
+    } catch (e) {
+      _handleException(e);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.put(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: headers,
+        body: json.encode(data),
+      ).timeout(timeout);
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
       } else {
         throw _handleError(response.statusCode);
       }
