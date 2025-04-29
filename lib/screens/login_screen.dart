@@ -55,6 +55,16 @@ class LoginScreenState extends State<LoginScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       await authProvider.login(_emailController.text, _passwordController.text);
 
+      // Save credentials if remember me is checked
+      if (_rememberMe) {
+        await StorageService.saveCredentials(
+          _emailController.text,
+          _passwordController.text,
+        );
+      } else {
+        await StorageService.clearCredentials();
+      }
+
       if (mounted) {
         // Get the screen index from arguments
         final screenIndex = ModalRoute.of(context)?.settings.arguments as int?;
@@ -119,7 +129,7 @@ class LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Email/Username',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.visiblePassword,
@@ -171,6 +181,19 @@ class LoginScreenState extends State<LoginScreen> {
                         ? const CircularProgressIndicator()
                         : const Text('Login'),
                   ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account?"),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: const Text('Register'),
+                    ),
+                  ],
                 ),
               ],
             ),

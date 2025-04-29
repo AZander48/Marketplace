@@ -110,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onPressed: () async {
                             final result = await Navigator.pushNamed(
                               context,
-                              '/edit_profile',
+                              '/edit-profile',
                               arguments: user,
                             );
                             if (result == true) {

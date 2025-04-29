@@ -29,6 +29,14 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    // Validate required fields
+    if (!username || !email || !password) {
+      return res.status(400).json({ 
+        message: 'Missing required fields',
+        received: { username, email, password: password ? '***' : null }
+      });
+    }
+
     // Check if user already exists
     const userExists = await pool.query(
       'SELECT * FROM users WHERE email = $1 OR username = $2',
@@ -44,7 +52,7 @@ router.post('/register', async (req, res) => {
 
     // Create user
     const result = await pool.query(
-      'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email',
+      'INSERT INTO users (username, email, password_hash, created_at, updated_at, last_active) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id, username, email',
       [username, email, password_hash]
     );
 
@@ -61,7 +69,11 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Error registering user' });
+    res.status(500).json({ 
+      message: 'Error registering user',
+      error: error.message,
+      detail: error.detail
+    });
   }
 });
 
@@ -71,12 +83,11 @@ router.post('/login', async (req, res) => {
     const { identifier, password } = req.body;
     console.log('Login attempt with:', { identifier, password });
 
-    // Get user and verify password in one query
+    // First get the user
     const result = await pool.query(
-      `SELECT id, username, email FROM users 
-       WHERE (email = $1 OR username = $1) 
-       AND password_hash = crypt($2, password_hash)`,
-      [identifier, password]
+      `SELECT id, username, email, password_hash FROM users 
+       WHERE email = $1 OR username = $1`,
+      [identifier]
     );
 
     console.log('Database query result:', result.rows);
@@ -88,6 +99,12 @@ router.post('/login', async (req, res) => {
 
     const user = result.rows[0];
     console.log('Found user:', user);
+
+    // Verify password using bcrypt
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
     // Generate token
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });

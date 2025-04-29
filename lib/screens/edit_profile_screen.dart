@@ -21,14 +21,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   User? _user;
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with empty strings
+    _nameController = TextEditingController();
+    _bioController = TextEditingController();
+    _phoneController = TextEditingController();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_user == null) {
       _user = ModalRoute.of(context)?.settings.arguments as User?;
       if (_user != null) {
-        _nameController = TextEditingController(text: _user!.name);
-        _bioController = TextEditingController(text: _user!.bio);
-        _phoneController = TextEditingController(text: _user!.phoneNumber);
+        _nameController.text = _user!.name ?? '';
+        _bioController.text = _user!.bio ?? '';
+        _phoneController.text = _user!.phoneNumber ?? '';
       }
     }
   }

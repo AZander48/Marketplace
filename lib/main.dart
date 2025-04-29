@@ -13,16 +13,20 @@ import 'screens/product_screen.dart';
 import 'screens/edit_product_screen.dart';
 import 'screens/category_screen.dart';
 import 'screens/edit_profile_screen.dart';
+import 'screens/register_screen.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/location_provider.dart';
 import 'services/location_service.dart';
+import 'models/user.dart';
 import 'package:http/http.dart' as http;
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize services in a separate isolate
   final httpClient = http.Client();
   final locationService = LocationService(
     baseUrl: 'http://10.0.2.2:3000/api',
@@ -113,6 +117,7 @@ class MyApp extends StatelessWidget {
         '/edit': (context) => const EditProductScreen(),
         '/category': (context) => const CategoryScreen(),
         '/edit-profile': (context) => const EditProfileScreen(),
+        '/register': (context) => const RegisterScreen(),
       },
     );
   }
@@ -140,12 +145,16 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _initializeApp();
   }
 
-  Future<void> _checkAuth() async {
+  Future<void> _initializeApp() async {
+    // Use Future.delayed to allow the UI to render first
+    await Future.delayed(Duration.zero);
+    
+    if (!mounted) return;
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    setState(() => _isLoading = true);
     
     try {
       _isLoggedIn = authProvider.isLoggedIn;

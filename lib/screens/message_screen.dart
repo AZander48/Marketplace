@@ -82,10 +82,19 @@ class _MessageScreenState extends State<MessageScreen> {
         throw Exception('User not found');
       }
 
-      print('Current user ID: ${currentUser.id}');
-      print('Product owner ID: ${widget.product.userId}');
+      if (widget.product == null) {
+        throw Exception('Product not found');
+      }
 
-      if (currentUser.id == widget.product.userId) {
+      final productUserId = widget.product.userId;
+      if (productUserId == null) {
+        throw Exception('Product owner not found');
+      }
+
+      print('Current user ID: ${currentUser.id}');
+      print('Product owner ID: $productUserId');
+
+      if (currentUser.id == productUserId) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('You cannot send messages to yourself'),
@@ -95,12 +104,9 @@ class _MessageScreenState extends State<MessageScreen> {
         return;
       }
 
-      final receiverId = widget.product.userId;
-      print('Receiver ID: $receiverId');
-
       final message = await _messageService.sendMessage(
         widget.product.id,
-        receiverId,
+        productUserId,
         _messageController.text.trim(),
       );
 
