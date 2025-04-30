@@ -317,4 +317,22 @@ class ApiService {
       rethrow;
     }
   }
+
+  // Generic method for delete operations
+  Future<void> delete(String endpoint) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.delete(
+        Uri.parse('$_baseUrl$endpoint'),
+        headers: headers,
+      ).timeout(timeout);
+
+      if (response.statusCode != 200) {
+        throw _handleError(response.statusCode);
+      }
+    } catch (e) {
+      _handleException(e);
+      rethrow;
+    }
+  }
 } 

@@ -1,12 +1,12 @@
 import express from 'express';
-import { pool } from '../config/database.js';
+import { query } from '../config/database.js';
 
 const router = express.Router();
 
 // Get all categories
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query(
+    const result = await query(
       'SELECT * FROM categories ORDER BY name'
     );
     res.json(result.rows);
@@ -22,7 +22,7 @@ router.get('/:id/products', async (req, res) => {
     const { id } = req.params;
     const { limit = 20, offset = 0 } = req.query;
 
-    const result = await pool.query(
+    const result = await query(
       `SELECT p.*, u.username as seller_name, c.name as category_name
        FROM products p
        JOIN users u ON p.user_id = u.id
@@ -34,7 +34,7 @@ router.get('/:id/products', async (req, res) => {
     );
 
     // Get total count for pagination
-    const countResult = await pool.query(
+    const countResult = await query(
       'SELECT COUNT(*) FROM products WHERE category_id = $1',
       [id]
     );
@@ -55,7 +55,7 @@ router.get('/:id/products', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query(
+    const result = await query(
       'SELECT * FROM categories WHERE id = $1',
       [id]
     );

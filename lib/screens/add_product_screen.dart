@@ -215,23 +215,27 @@ class AddProductScreenState extends State<AddProductScreen> {
                 ),
               if (locationProvider.cities.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                DropdownButtonFormField<City>(
-                  value: locationProvider.selectedCity,
-                  hint: const Text('Select City'),
-                  items: locationProvider.cities.map((city) {
-                    return DropdownMenuItem(
-                      value: city,
-                      child: Text(city.name),
-                    );
-                  }).toList(),
-                  onChanged: (city) {
-                    if (city != null) {
-                      locationProvider.selectCity(city);
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'City',
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter your city name',
+                  ),
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      // Create a new city object with the entered name
+                      final newCity = City(
+                        id: 0, // Will be set by the server
+                        name: value,
+                        stateId: locationProvider.selectedState!.id,
+                        createdAt: DateTime.now(),
+                      );
+                      locationProvider.selectCity(newCity);
                     }
                   },
                   validator: (value) {
-                    if (value == null) {
-                      return 'Please select a city';
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your city';
                     }
                     return null;
                   },

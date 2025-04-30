@@ -14,10 +14,15 @@ drop table if exists product_popularity;
 drop table if exists products;
 drop table if exists categories;
 drop table if exists user_location_preferences;
+drop table if exists garage_items;
 drop table if exists users;
 drop table if exists cities;
 drop table if exists states;
 drop table if exists countries;
+drop table if exists vehicle_submodels;
+drop table if exists vehicle_models;
+drop table if exists vehicle_makes;
+drop table if exists vehicle_types;
 
 -- Create tables
 CREATE TABLE countries (
@@ -213,6 +218,52 @@ CREATE TABLE saved_products (
     UNIQUE(user_id, product_id)
 );
 
+-- Create vehicle tables with hierarchy
+CREATE TABLE vehicle_types (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE vehicle_makes (
+    id SERIAL PRIMARY KEY,
+    type_id INTEGER REFERENCES vehicle_types(id) ON DELETE CASCADE,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(type_id, name)
+);
+
+CREATE TABLE vehicle_models (
+    id SERIAL PRIMARY KEY,
+    make_id INTEGER REFERENCES vehicle_makes(id) ON DELETE CASCADE,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(make_id, name)
+);
+
+CREATE TABLE vehicle_submodels (
+    id SERIAL PRIMARY KEY,
+    model_id INTEGER REFERENCES vehicle_models(id) ON DELETE CASCADE,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(model_id, name)
+);
+
+CREATE TABLE garage_items (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    image_url TEXT,
+    vehicle_type_id INTEGER REFERENCES vehicle_types(id),
+    vehicle_year INTEGER,
+    vehicle_make_id INTEGER REFERENCES vehicle_makes(id),
+    vehicle_model_id INTEGER REFERENCES vehicle_models(id),
+    vehicle_submodel_id INTEGER REFERENCES vehicle_submodels(id),
+    is_primary BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create index for faster notification queries
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
@@ -289,4 +340,25 @@ CREATE INDEX idx_messages_created_at ON messages(created_at);
 -- Indexes for faster saved products queries
 CREATE INDEX idx_saved_products_user_id ON saved_products(user_id);
 CREATE INDEX idx_saved_products_product_id ON saved_products(product_id);
+
+-- Create index for faster garage item queries
+CREATE INDEX idx_garage_items_user_id ON garage_items(user_id);
+CREATE INDEX idx_garage_items_created_at ON garage_items(created_at);
+CREATE INDEX idx_garage_items_is_primary ON garage_items(is_primary);
+
+-- Create indexes for faster vehicle queries
+CREATE INDEX idx_vehicle_makes_type_id ON vehicle_makes(type_id);
+CREATE INDEX idx_vehicle_models_make_id ON vehicle_models(make_id);
+CREATE INDEX idx_vehicle_submodels_model_id ON vehicle_submodels(model_id);
+CREATE INDEX idx_garage_items_vehicle_type_id ON garage_items(vehicle_type_id);
+CREATE INDEX idx_garage_items_vehicle_make_id ON garage_items(vehicle_make_id);
+CREATE INDEX idx_garage_items_vehicle_model_id ON garage_items(vehicle_model_id);
+CREATE INDEX idx_garage_items_vehicle_submodel_id ON garage_items(vehicle_submodel_id);
+
+-- Create indexes for faster vehicle type queries
+CREATE INDEX idx_vehicle_types_name ON vehicle_types(name);
+
+-- Create indexes for faster vehicle make queries
+CREATE INDEX idx_vehicle_makes_name ON vehicle_makes(name);
+
 

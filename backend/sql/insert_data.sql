@@ -1,8 +1,7 @@
 -- Enable pgcrypto extension for password hashing
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-
--- Insert countries
+-- Insert countries first
 INSERT INTO countries (name, code) VALUES
 ('United States', 'US'),
 ('Canada', 'CA'),
@@ -11,112 +10,98 @@ INSERT INTO countries (name, code) VALUES
 
 -- Insert states for United States
 INSERT INTO states (country_id, name, code) VALUES
-(1, 'New York', 'NY'),
+(1, 'Alabama', 'AL'),
+(1, 'Alaska', 'AK'),
+(1, 'Arizona', 'AZ'),
+(1, 'Arkansas', 'AR'),
 (1, 'California', 'CA'),
-(1, 'Texas', 'TX'),
+(1, 'Colorado', 'CO'),
+(1, 'Connecticut', 'CT'),
+(1, 'Delaware', 'DE'),
 (1, 'Florida', 'FL'),
-(1, 'Illinois', 'IL');
+(1, 'Georgia', 'GA'),
+(1, 'Hawaii', 'HI'),
+(1, 'Idaho', 'ID'),
+(1, 'Illinois', 'IL'),
+(1, 'Indiana', 'IN'),
+(1, 'Iowa', 'IA'),
+(1, 'Kansas', 'KS'),
+(1, 'Kentucky', 'KY'),
+(1, 'Louisiana', 'LA'),
+(1, 'Maine', 'ME'),
+(1, 'Maryland', 'MD'),
+(1, 'Massachusetts', 'MA'),
+(1, 'Michigan', 'MI'),
+(1, 'Minnesota', 'MN'),
+(1, 'Mississippi', 'MS'),
+(1, 'Missouri', 'MO'),
+(1, 'Montana', 'MT'),
+(1, 'Nebraska', 'NE'),
+(1, 'Nevada', 'NV'),
+(1, 'New Hampshire', 'NH'),
+(1, 'New Jersey', 'NJ'),
+(1, 'New Mexico', 'NM'),
+(1, 'New York', 'NY'),
+(1, 'North Carolina', 'NC'),
+(1, 'North Dakota', 'ND'),
+(1, 'Ohio', 'OH'),
+(1, 'Oklahoma', 'OK'),
+(1, 'Oregon', 'OR'),
+(1, 'Pennsylvania', 'PA'),
+(1, 'Rhode Island', 'RI'),
+(1, 'South Carolina', 'SC'),
+(1, 'South Dakota', 'SD'),
+(1, 'Tennessee', 'TN'),
+(1, 'Texas', 'TX'),
+(1, 'Utah', 'UT'),
+(1, 'Vermont', 'VT'),
+(1, 'Virginia', 'VA'),
+(1, 'Washington', 'WA'),
+(1, 'West Virginia', 'WV'),
+(1, 'Wisconsin', 'WI'),
+(1, 'Wyoming', 'WY'),
+(1, 'District of Columbia', 'DC');
 
--- Insert states for Canada
+-- Insert provinces and territories for Canada
 INSERT INTO states (country_id, name, code) VALUES
-(2, 'Ontario', 'ON'),
-(2, 'Quebec', 'QC'),
+(2, 'Alberta', 'AB'),
 (2, 'British Columbia', 'BC'),
-(2, 'Alberta', 'AB');
+(2, 'Manitoba', 'MB'),
+(2, 'New Brunswick', 'NB'),
+(2, 'Newfoundland and Labrador', 'NL'),
+(2, 'Northwest Territories', 'NT'),
+(2, 'Nova Scotia', 'NS'),
+(2, 'Nunavut', 'NU'),
+(2, 'Ontario', 'ON'),
+(2, 'Prince Edward Island', 'PE'),
+(2, 'Quebec', 'QC'),
+(2, 'Saskatchewan', 'SK'),
+(2, 'Yukon', 'YT');
 
--- Insert states for United Kingdom
+-- Insert countries for United Kingdom
 INSERT INTO states (country_id, name, code) VALUES
 (3, 'England', 'ENG'),
 (3, 'Scotland', 'SCT'),
 (3, 'Wales', 'WLS'),
 (3, 'Northern Ireland', 'NIR');
 
--- Insert states for Australia
+-- Insert states and territories for Australia
 INSERT INTO states (country_id, name, code) VALUES
+(4, 'Australian Capital Territory', 'ACT'),
 (4, 'New South Wales', 'NSW'),
-(4, 'Victoria', 'VIC'),
+(4, 'Northern Territory', 'NT'),
 (4, 'Queensland', 'QLD'),
+(4, 'South Australia', 'SA'),
+(4, 'Tasmania', 'TAS'),
+(4, 'Victoria', 'VIC'),
 (4, 'Western Australia', 'WA');
 
--- Insert major cities for US states
-INSERT INTO cities (state_id, name) VALUES
--- New York cities
-(1, 'New York City'),
-(1, 'Buffalo'),
-(1, 'Rochester'),
--- California cities
-(2, 'Los Angeles'),
-(2, 'San Francisco'),
-(2, 'San Diego'),
--- Texas cities
-(3, 'Houston'),
-(3, 'Dallas'),
-(3, 'Austin'),
--- Florida cities
-(4, 'Miami'),
-(4, 'Orlando'),
-(4, 'Tampa'),
--- Illinois cities
-(5, 'Chicago'),
-(5, 'Springfield'),
-(5, 'Rockford');
-
--- Insert major cities for Canadian provinces
-INSERT INTO cities (state_id, name) VALUES
--- Ontario cities
-(6, 'Toronto'),
-(6, 'Ottawa'),
-(6, 'Hamilton'),
--- Quebec cities
-(7, 'Montreal'),
-(7, 'Quebec City'),
-(7, 'Laval'),
--- British Columbia cities
-(8, 'Vancouver'),
-(8, 'Victoria'),
-(8, 'Surrey'),
--- Alberta cities
-(9, 'Calgary'),
-(9, 'Edmonton'),
-(9, 'Red Deer');
-
--- Insert major cities for UK countries
-INSERT INTO cities (state_id, name) VALUES
--- England cities
-(10, 'London'),
-(10, 'Manchester'),
-(10, 'Birmingham'),
--- Scotland cities
-(11, 'Edinburgh'),
-(11, 'Glasgow'),
-(11, 'Aberdeen'),
--- Wales cities
-(12, 'Cardiff'),
-(12, 'Swansea'),
-(12, 'Newport'),
--- Northern Ireland cities
-(13, 'Belfast'),
-(13, 'Derry'),
-(13, 'Lisburn');
-
--- Insert major cities for Australian states
-INSERT INTO cities (state_id, name) VALUES
--- New South Wales cities
-(14, 'Sydney'),
-(14, 'Newcastle'),
-(14, 'Wollongong'),
--- Victoria cities
-(15, 'Melbourne'),
-(15, 'Geelong'),
-(15, 'Ballarat'),
--- Queensland cities
-(16, 'Brisbane'),
-(16, 'Gold Coast'),
-(16, 'Sunshine Coast'),
--- Western Australia cities
-(17, 'Perth'),
-(17, 'Fremantle'),
-(17, 'Mandurah');
+-- Note: Cities are not pre-populated. They will be added dynamically as users enter their locations.
+-- This approach allows for:
+-- 1. User flexibility in entering their exact city
+-- 2. Automatic creation of new cities as needed
+-- 3. Proper linking to states/provinces
+-- 4. Prevention of duplicate cities within the same state
 
 -- Insert default categories
 INSERT INTO categories (name, icon, description) VALUES
@@ -129,8 +114,49 @@ INSERT INTO categories (name, icon, description) VALUES
     ('Toys & Games', 'toys', 'Toys, games, and entertainment items'),
     ('Beauty & Health', 'beauty', 'Beauty products and health items'),
     ('Pets', 'pets', 'Pet supplies and accessories'),
-    ('Other', 'other', 'Other miscellaneous items')
-ON CONFLICT (name) DO NOTHING;
+    ('Other', 'other', 'Other miscellaneous items');
+
+-- Insert default vehicle types
+INSERT INTO vehicle_types (name) VALUES
+('Car'),
+('Motorcycle'),
+('Truck'),
+('Boat'),
+('Other');
+
+-- Insert default vehicle makes
+INSERT INTO vehicle_makes (name, type_id) VALUES
+('Honda', 1),
+('Toyota', 1),
+('Tesla', 1),
+('BMW', 1),
+('Harley-Davidson', 2),
+('Kawasaki', 2),
+('Polaris', 3),
+('Yamaha', 2),
+('Other', 4);
+
+-- Insert default vehicle models
+INSERT INTO vehicle_models (name, make_id) VALUES
+('Civic', 1),
+('Camry', 1),
+('Model 3', 1),
+('320i', 1),
+('Ninja 400', 2),
+('Polaris RZR', 3),
+('FZ1', 2),
+('Other', 4);
+
+-- Insert default vehicle submodels
+INSERT INTO vehicle_submodels (name, model_id) VALUES
+('2.0L Turbo', 1),
+('3.5L V6', 1),
+('Dual Motor', 1),
+('2.0L TwinPower', 1),
+('400cc', 2),
+('RZR 1000', 3),
+('FZ1-S', 2),
+('Other', 4);
 
 -- Insert sample users with properly hashed passwords
 INSERT INTO users (username, email, password_hash, city_id, profile_image_url, bio, phone_number, is_verified) VALUES
@@ -161,7 +187,7 @@ INSERT INTO reviews (reviewer_id, reviewed_id, order_id, rating, comment) VALUES
 (1, 4, 3, 4, 'Beautiful handbag, authentic as described.'),
 (4, 3, 4, 5, 'Table was in perfect condition, fast shipping!');
 
-    -- Insert default notifications
+-- Insert default notifications
 INSERT INTO notifications (user_id, type, title, message, related_id, related_type, is_read) VALUES
     (1, 'Welcome to the platform!', 'Welcome to the platform!', 'Welcome to the platform!', NULL, NULL, FALSE),
     (2, 'You have a new message.', 'You have a new message.', 'You have a new message.', NULL, NULL, FALSE),
@@ -220,13 +246,6 @@ INSERT INTO user_suspensions (user_id, suspension_type, reason) VALUES
     (2, 'spam', 'Spamming and inappropriate content'),
     (3, 'fraud', 'Fraudulent activity and spamming');
 
--- Insert default product reports
-/*INSERT INTO product_reports (product_id, reporter_id, report_type, validation, ban) VALUES
-    (1, 2, 'spam', FALSE, FALSE),
-    (2, 3, 'inappropriate content', TRUE, TRUE),
-    (3, 4, 'fraud', FALSE, FALSE),
-    (4, 1, 'spam', TRUE, FALSE);*/
-
 -- Insert products with city references
 INSERT INTO products (user_id, title, description, price, category_id, city_id, image_url) VALUES
 (1, 'iPhone 13 Pro', 'Brand new iPhone 13 Pro, 256GB', 999.99, 1, 1, 'https://example.com/iphone.jpg'),
@@ -257,11 +276,9 @@ INSERT INTO messages (sender_id, receiver_id, product_id, message) VALUES
 (1, 2, 1, 'My name is John Doe. Can you send me the details?'),
 (2, 1, 1, 'Absolutely, I''ll send you the details right away.');
 
--- Insert sample saved products
-INSERT INTO saved_products (user_id, product_id) VALUES
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4);
-
-
+-- Insert default garage items
+INSERT INTO garage_items (user_id, name, description, image_url, vehicle_type_id, vehicle_year, vehicle_make_id, vehicle_model_id, vehicle_submodel_id, is_primary) VALUES
+(1, '2021 Honda Civic', '2021 Honda Civic, 2.0L, automatic transmission, 182 hp', 'https://example.com/honda_civic.jpg', 1, 2021, 1, 1, 1, true),
+(2, '2019 Toyota Camry', '2019 Toyota Camry, 3.5L, automatic transmission, 301 hp', 'https://example.com/toyota_camry.jpg', 1, 2019, 2, 2, 2, false),
+(3, '2020 Tesla Model 3', '2020 Tesla Model 3, 283 hp', 'https://example.com/tesla_model_3.jpg', 1, 2020, 3, 3, 3, false),
+(4, '2018 BMW 320i', '2018 BMW 320i, 2.0L, automatic transmission, 248 hp', 'https://example.com/bmw_320i.jpg', 1, 2018, 4, 4, 4, false);

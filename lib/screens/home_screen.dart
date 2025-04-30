@@ -296,7 +296,25 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               height: 200,
               child: products.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.inventory_2_outlined, 
+                            size: 40, 
+                            color: Colors.grey[400]
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No products available',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: products.length,
