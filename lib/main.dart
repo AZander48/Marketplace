@@ -17,6 +17,8 @@ import 'screens/register_screen.dart';
 import 'screens/garage_screen.dart';
 import 'screens/add_garage_item_screen.dart';
 import 'screens/parts_screen.dart';
+import 'screens/seller_profile_screen.dart';
+import 'screens/message_screen.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
@@ -124,6 +126,8 @@ class MyApp extends StatelessWidget {
         '/garage': (context) => const GarageScreen(),
         '/add-garage-item': (context) => const AddGarageItemScreen(),
         '/parts': (context) => const PartsScreen(),
+        '/seller-profile': (context) => const SellerProfileScreen(),
+        '/messages': (context) => const MessageScreen(),
       },
     );
   }

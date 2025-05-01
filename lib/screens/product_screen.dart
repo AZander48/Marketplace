@@ -250,7 +250,11 @@ class _ProductScreenState extends State<ProductScreen> {
                       style: const TextStyle(color: Colors.grey),
                     ),
                     onTap: () {
-                      // TODO: Navigate to seller profile
+                      Navigator.pushNamed(
+                        context,
+                        '/seller-profile',
+                        arguments: product.userId,
+                      );
                     },
                   ),
                 ],
@@ -273,11 +277,10 @@ class _ProductScreenState extends State<ProductScreen> {
                 );
                 return;
               }
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => MessageScreen(product: product),
-                ),
+                '/messages',
+                arguments: product.id,
               );
             },
             style: ElevatedButton.styleFrom(
