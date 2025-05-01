@@ -60,24 +60,32 @@ class AuthService {
   // Register user
   Future<User> register(String name, String email, String password) async {
     try {
+      debugPrint('Attempting registration with: name=$name, email=$email');
       final response = await http.post(
         Uri.parse('$baseUrl/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'name': name,
+          'username': name,
           'email': email,
           'password': password,
         }),
       ).timeout(timeout);
 
+      debugPrint('Registration response status: ${response.statusCode}');
+      debugPrint('Registration response body: ${response.body}');
+
       if (response.statusCode == 201) {
-        final user = User.fromJson(json.decode(response.body));
+        final responseData = json.decode(response.body);
+        final user = User.fromJson(responseData);
         await _saveUser(user);
         return user;
       } else {
-        throw Exception('Failed to register');
+        final errorBody = json.decode(response.body);
+        debugPrint('Error response: $errorBody');
+        throw Exception(errorBody['message'] ?? 'Failed to register');
       }
     } catch (e) {
+      debugPrint('Registration error: $e');
       throw Exception('Error registering: $e');
     }
   }

@@ -16,7 +16,7 @@ class AuthProvider with ChangeNotifier {
 
   User? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
-  bool get isLoggedIn => _currentUser != null && _currentUser!.token != null;
+  bool get isLoggedIn => _currentUser != null && _currentUser?.token != null;
 
   AuthProvider() {
     _loadUser();

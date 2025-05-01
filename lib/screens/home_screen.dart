@@ -10,8 +10,7 @@ import '../widgets/search_bar.dart';
 import '../providers/search_provider.dart';
 import '../services/category_service.dart';
 import '../models/category.dart';
-import 'category_screen.dart';
-import 'product_screen.dart';
+import '../services/recommendation_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,18 +22,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
   final _categoryService = CategoryService();
+  final RecommendationService _recommendationService = RecommendationService();
   List<Category> _categories = [];
-  Map<int, List<Product>> _categoryProducts = {};
+  final Map<int, List<Product>> _categoryProducts = {};
   bool _isLoading = true;
   String? _errorMessage;
   final _searchController = TextEditingController();
   final _focusNode = FocusNode();
-
+  List<Product> _recommendedProducts = [];
 
   @override
   void initState() {
     super.initState();
     _loadCategories();
+    _loadRecommendations();
   }
 
   @override
@@ -59,9 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoading = false;
         });
 
-        // Load products for each category
-        for (final category in categories) {
-          _loadCategoryProducts(category.id);
+        // Load products for first category only initially
+        if (categories.isNotEmpty) {
+          _loadCategoryProducts(categories[0].id);
         }
       }
     } catch (e) {
@@ -84,7 +85,28 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error loading products for category $categoryId: $e');
+      if (mounted) {
+        setState(() {
+          _categoryProducts[categoryId] = []; // Set empty list on error
+        });
+      }
+    }
+  }
+
+  Future<void> _loadRecommendations() async {
+    try {
+      final recommendations = await _recommendationService.getRecommendedProducts();
+      if (mounted) {
+        setState(() {
+          _recommendedProducts = recommendations;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _recommendedProducts = []; // Set empty list on error
+        });
+      }
     }
   }
 
@@ -126,6 +148,17 @@ class _HomeScreenState extends State<HomeScreen> {
           autofocus: false,
         ),
         actions: [
+          if (!authProvider.isLoggedIn)
+            IconButton(
+              icon: const Icon(Icons.login),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/login',
+                );
+              },
+              tooltip: 'Login',
+            ),
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {},
@@ -187,11 +220,50 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return ListView.builder(
+      cacheExtent: 1000,
       padding: const EdgeInsets.all(16),
-      itemCount: _categories.length,
+      itemCount: _categories.length + (_recommendedProducts.isNotEmpty ? 1 : 0),
       itemBuilder: (context, index) {
-        final category = _categories[index];
+        if (index == 0 && _recommendedProducts.isNotEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  'Recommended for You',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _recommendedProducts.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: 150,
+                      margin: const EdgeInsets.only(right: 16),
+                      child: ProductCard(product: _recommendedProducts[index]),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }
+
+        final categoryIndex = _recommendedProducts.isNotEmpty ? index - 1 : index;
+        final category = _categories[categoryIndex];
         final products = _categoryProducts[category.id] ?? [];
+
+        // Load products for this category if not already loaded
+        if (products.isEmpty) {
+          _loadCategoryProductsIfNeeded(category.id);
+        }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,11 +282,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => CategoryScreen(category: category),
-                        ),
+                        '/category',
+                        arguments: category,
                       );
                     },
                     child: const Text('See All'),
@@ -224,18 +295,38 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(
               height: 200,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: products.length,
-                itemBuilder: (context, productIndex) {
-                  final product = products[productIndex];
-                  return Container(
-                    width: 150,
-                    margin: const EdgeInsets.only(right: 16),
-                    child: ProductCard(product: product),
-                  );
-                },
-              ),
+              child: products.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.inventory_2_outlined, 
+                            size: 40, 
+                            color: Colors.grey[400]
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No products available',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: products.length,
+                      itemBuilder: (context, productIndex) {
+                        final product = products[productIndex];
+                        return Container(
+                          width: 150,
+                          margin: const EdgeInsets.only(right: 16),
+                          child: ProductCard(product: product),
+                        );
+                      },
+                    ),
             ),
           ],
         );
@@ -266,69 +357,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildCategoryCard(Category category) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryScreen(category: category),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _getCategoryIcon(category.name),
-              size: 40,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              category.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  IconData _getCategoryIcon(String categoryName) {
-    switch (categoryName.toLowerCase()) {
-      case 'electronics':
-        return Icons.electrical_services;
-      case 'clothing':
-        return Icons.checkroom;
-      case 'furniture':
-        return Icons.chair;
-      case 'books':
-        return Icons.menu_book;
-      case 'sports':
-        return Icons.sports_soccer;
-      case 'toys':
-        return Icons.toys;
-      case 'automotive':
-        return Icons.directions_car;
-      case 'home':
-        return Icons.home;
-      case 'beauty':
-        return Icons.face;
-      case 'other':
-        return Icons.category;
-      default:
-        return Icons.category;
+  // Add this new method to load products for a category when it becomes visible
+  Future<void> _loadCategoryProductsIfNeeded(int categoryId) async {
+    if (!_categoryProducts.containsKey(categoryId)) {
+      await _loadCategoryProducts(categoryId);
     }
   }
 }

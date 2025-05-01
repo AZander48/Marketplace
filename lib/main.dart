@@ -5,22 +5,33 @@ import 'screens/home_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/sell_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/settings_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/view_product_screen.dart';
 import 'screens/add_product_screen.dart';
-import 'screens/edit_product_screen.dart';
 import 'screens/product_screen.dart';
+import 'screens/edit_product_screen.dart';
+import 'screens/category_screen.dart';
+import 'screens/edit_profile_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/garage_screen.dart';
+import 'screens/add_garage_item_screen.dart';
+import 'screens/parts_screen.dart';
+import 'screens/seller_profile_screen.dart';
+import 'screens/message_screen.dart';
 import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/location_provider.dart';
 import 'services/location_service.dart';
+import 'models/user.dart';
 import 'package:http/http.dart' as http;
-import 'models/product.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize services in a separate isolate
   final httpClient = http.Client();
   final locationService = LocationService(
     baseUrl: 'http://10.0.2.2:3000/api',
@@ -90,7 +101,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaleFactor: 1.0,
+            textScaler: const TextScaler.linear(1.0),
             alwaysUse24HourFormat: true,
             viewInsets: MediaQuery.of(context).viewInsets,
           ),
@@ -105,8 +116,18 @@ class MyApp extends StatelessWidget {
         '/sell': (context) => const SellScreen(),
         '/view': (context) => const ViewProductScreen(),
         '/add': (context) => const AddProductScreen(),
-        '/edit': (context) => const EditProductScreen(),
         '/product': (context) => const ProductScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/edit': (context) => const EditProductScreen(),
+        '/category': (context) => const CategoryScreen(),
+        '/edit-profile': (context) => const EditProfileScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/garage': (context) => const GarageScreen(),
+        '/add-garage-item': (context) => const AddGarageItemScreen(),
+        '/parts': (context) => const PartsScreen(),
+        '/seller-profile': (context) => const SellerProfileScreen(),
+        '/messages': (context) => const MessageScreen(),
       },
     );
   }
@@ -134,12 +155,16 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _initializeApp();
   }
 
-  Future<void> _checkAuth() async {
+  Future<void> _initializeApp() async {
+    // Use Future.delayed to allow the UI to render first
+    await Future.delayed(Duration.zero);
+    
+    if (!mounted) return;
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    setState(() => _isLoading = true);
     
     try {
       _isLoggedIn = authProvider.isLoggedIn;
@@ -160,32 +185,30 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
-    // If not logged in and trying to access Sell or Profile, navigate to login
-    if (_selectedIndex == 2 && !_isLoggedIn || _selectedIndex == 3 && !_isLoggedIn) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(
-          context,
-          '/login',
-          arguments: _selectedIndex,
-        ).then((result) {
-          if (result == true && mounted) {
-            setState(() {
-              _isLoggedIn = true;
-            });
-          }
-        });
-      });
-      return const LoginScreen(); // Show login screen directly
-    }
-
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          // If trying to access Sell or Profile while not logged in, show login
+          if ((index == 2 || index == 3) && !_isLoggedIn) {
+            Navigator.pushNamed(
+              context,
+              '/login',
+              arguments: index,
+            ).then((result) {
+              if (result == true && mounted) {
+                setState(() {
+                  _isLoggedIn = true;
+                  _selectedIndex = index;
+                });
+              }
+            });
+          } else {
+            setState(() {
+              _selectedIndex = index;
+            });
+          }
         },
         type: BottomNavigationBarType.fixed,
         items: const [

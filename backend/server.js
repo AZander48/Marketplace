@@ -13,6 +13,12 @@ import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import categoryRoutes from './routes/categories.js';
 import locationRoutes from './routes/locations.js';
+import recommendationsRouter from './routes/recommendations.js';
+import usersRouter from './routes/users.js';
+import messagesRouter from './routes/messages.js';
+import vehicleRoutes from './routes/vehicles.js';
+import garageRoutes from './routes/garage.js';
+import partsRoutes from './routes/parts.js';
 
 // Load environment variables
 dotenv.config();
@@ -83,6 +89,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/recommendations', recommendationsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/messages', authenticateToken, messagesRouter);
+app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/garage', garageRoutes);
+app.use('/api/parts', partsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

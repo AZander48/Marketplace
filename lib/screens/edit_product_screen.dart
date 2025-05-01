@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product.dart';
-import '../models/category.dart';
 import '../services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../services/auth_service.dart';
-import '../services/category_service.dart';
 
 class EditProductScreen extends StatefulWidget {
   const EditProductScreen({super.key});
@@ -21,13 +18,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _conditionController = TextEditingController();
-  final _authService = AuthService();
-  final _categoryService = CategoryService();
   String? _imageUrl;
   bool _isLoading = false;
   int? _selectedCategoryId;
-  List<Category> _categories = [];
-  bool _isLoadingCategories = true;
   Product? _product;
   bool _isLoadingProduct = true;
   bool _initialized = false;
@@ -37,7 +30,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.didChangeDependencies();
     if (!_initialized) {
       _loadProduct();
-      _loadCategories();
       _initialized = true;
     }
   }
@@ -71,7 +63,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         setState(() {
           _product = product;
           _titleController.text = product.title;
-          _descriptionController.text = product.description ?? '';
+          _descriptionController.text = product.description;
           _priceController.text = product.price.toString();
           _conditionController.text = product.condition ?? '';
           _selectedCategoryId = product.categoryId;
@@ -88,32 +80,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading product: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _loadCategories() async {
-    try {
-      setState(() {
-        _isLoadingCategories = true;
-      });
-
-      final categories = await _categoryService.getCategories();
-      
-      if (mounted) {
-        setState(() {
-          _categories = categories;
-          _isLoadingCategories = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingCategories = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading categories: $e')),
         );
       }
     }
@@ -188,6 +154,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         _isLoading = true;
       });
 
+      if (!mounted) return;
       final apiService = Provider.of<ApiService>(context, listen: false);
       await apiService.deleteProduct(_product!.id);
 
@@ -284,12 +251,30 @@ class _EditProductScreenState extends State<EditProductScreen> {
         title: const Text('Edit Product'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.done),
-            onPressed: _saveProduct,
+            icon: _isLoading 
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Icon(Icons.done),
+            onPressed: _isLoading ? null : _saveProduct,
           ),
           IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _deleteProduct,
+            icon: _isLoading 
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Icon(Icons.delete),
+            onPressed: _isLoading ? null : _deleteProduct,
           ),
         ],
       ),

@@ -40,44 +40,50 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Handle login response format
-    if (json['user'] != null) {
-      final userData = json['user'];
-      final now = DateTime.now();
+    try {
+      // Handle login response format
+      if (json['user'] != null) {
+        final userData = json['user'];
+        final now = DateTime.now();
+        return User(
+          id: userData['id'] ?? 0,
+          name: userData['name'],
+          email: userData['email'],
+          lastActive: now,
+          createdAt: now,
+          updatedAt: now,
+          token: json['token'],
+        );
+      }
+
+      // Handle full user profile format
       return User(
-        id: userData['id'],
-        name: userData['name'],
-        email: userData['email'],
-        lastActive: now,
-        createdAt: now,
-        updatedAt: now,
+        id: json['id'] ?? 0,
+        name: json['name'],
+        email: json['email'],
+        cityId: json['city_id'],
+        profileImageUrl: json['profile_image_url'],
+        bio: json['bio'],
+        phoneNumber: json['phone_number'],
+        isVerified: json['is_verified'] ?? false,
+        lastActive: DateTime.parse(json['last_active'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+        cityName: json['city_name'],
+        stateName: json['state_name'],
+        stateCode: json['state_code'],
+        countryName: json['country_name'],
+        countryCode: json['country_code'],
+        locationPreferences: (json['location_preferences'] as List?)
+            ?.map((pref) => UserLocationPreference.fromJson(pref))
+            .toList() ?? [],
         token: json['token'],
       );
+    } catch (e) {
+      print('Error parsing user data: $e');
+      print('JSON data: $json');
+      rethrow;
     }
-
-    // Handle full user profile format
-    return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      cityId: json['city_id'],
-      profileImageUrl: json['profile_image_url'],
-      bio: json['bio'],
-      phoneNumber: json['phone_number'],
-      isVerified: json['is_verified'] ?? false,
-      lastActive: DateTime.parse(json['last_active']),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      cityName: json['city_name'],
-      stateName: json['state_name'],
-      stateCode: json['state_code'],
-      countryName: json['country_name'],
-      countryCode: json['country_code'],
-      locationPreferences: (json['location_preferences'] as List?)
-          ?.map((pref) => UserLocationPreference.fromJson(pref))
-          .toList() ?? [],
-      token: json['token'],
-    );
   }
 
   Map<String, dynamic> toJson() {

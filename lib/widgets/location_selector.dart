@@ -137,32 +137,36 @@ class _LocationSelectorState extends State<LocationSelector> {
                       }
                     },
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<City>(
-              value: _selectedCity,
-              decoration: const InputDecoration(
-                labelText: 'City',
-                border: OutlineInputBorder(),
+            if (locationProvider.cities.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'City',
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter your city name',
+                ),
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    // Create a new city object with the entered name
+                    final newCity = City(
+                      id: 0, // Will be set by the server
+                      name: value,
+                      stateId: locationProvider.selectedState!.id,
+                      createdAt: DateTime.now(),
+                    );
+                    if (widget.onCitySelected != null) {
+                      widget.onCitySelected!(newCity);
+                    }
+                  }
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your city';
+                  }
+                  return null;
+                },
               ),
-              items: locationProvider.cities.map((city) {
-                return DropdownMenuItem<City>(
-                  value: city,
-                  child: Text(city.name),
-                );
-              }).toList(),
-              onChanged: widget.isViewOnly || _selectedState == null
-                  ? null
-                  : (City? city) {
-                      if (city != null) {
-                        setState(() {
-                          _selectedCity = city;
-                        });
-                        if (widget.onCitySelected != null) {
-                          widget.onCitySelected!(city);
-                        }
-                      }
-                    },
-            ),
+            ],
           ],
         );
       },

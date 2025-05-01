@@ -4,7 +4,7 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'edit_product_screen.dart';
+import '../screens/message_screen.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -250,7 +250,11 @@ class _ProductScreenState extends State<ProductScreen> {
                       style: const TextStyle(color: Colors.grey),
                     ),
                     onTap: () {
-                      // TODO: Navigate to seller profile
+                      Navigator.pushNamed(
+                        context,
+                        '/seller-profile',
+                        arguments: product.userId,
+                      );
                     },
                   ),
                 ],
@@ -273,7 +277,11 @@ class _ProductScreenState extends State<ProductScreen> {
                 );
                 return;
               }
-              // TODO: Implement contact seller functionality
+              Navigator.pushNamed(
+                context,
+                '/messages',
+                arguments: product.id,
+              );
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),

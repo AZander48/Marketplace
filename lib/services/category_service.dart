@@ -32,14 +32,29 @@ class CategoryService {
   }
 
   // Get products by category
-  Future<Map<String, dynamic>> getCategoryProducts(int categoryId, {int limit = 20, int offset = 0}) async {
+  Future<Map<String, dynamic>> getCategoryProducts(
+    int categoryId, {
+    int limit = 20,
+    int offset = 0,
+    String? searchQuery,
+    int? vehicleId,
+  }) async {
     try {
-      final url = '$baseUrl/categories/$categoryId/products?limit=$limit&offset=$offset';
+      final queryParams = {
+        'limit': limit.toString(),
+        'offset': offset.toString(),
+        if (searchQuery != null && searchQuery.isNotEmpty)
+          'search': searchQuery,
+        if (vehicleId != null)
+          'vehicleId': vehicleId.toString(),
+      };
+
+      final url = Uri.parse('$baseUrl/categories/$categoryId/products')
+          .replace(queryParameters: queryParams);
+      
       foundation.debugPrint('Fetching category products from: $url');
       
-      final response = await http.get(
-        Uri.parse(url),
-      ).timeout(timeout);
+      final response = await http.get(url).timeout(timeout);
 
       foundation.debugPrint('Category products response status: ${response.statusCode}');
       foundation.debugPrint('Category products response body: ${response.body}');

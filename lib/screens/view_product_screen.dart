@@ -246,7 +246,7 @@ class _ViewProductScreenState extends State<ViewProductScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              product.description ?? 'No description provided',
+              product.description,
               style: const TextStyle(
                 fontSize: 16,
                 height: 1.5,
