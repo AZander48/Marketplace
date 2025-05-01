@@ -7,9 +7,7 @@ import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
 
 class MessageScreen extends StatefulWidget {
-  final Product product;
-
-  const MessageScreen({super.key, required this.product});
+  const MessageScreen({super.key});
 
   @override
   State<MessageScreen> createState() => _MessageScreenState();
@@ -22,28 +20,60 @@ class _MessageScreenState extends State<MessageScreen> {
   List<Message> _messages = [];
   bool _isLoading = true;
   String? _errorMessage;
+  Product? _product;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _loadMessages();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _loadProduct();
+      _initialized = true;
+    }
   }
 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadMessages() async {
+  Future<void> _loadProduct() async {
     try {
       setState(() {
         _isLoading = true;
         _errorMessage = null;
       });
 
-      final messages = await _messageService.getMessages(widget.product.id);
+      final productId = ModalRoute.of(context)?.settings.arguments as int?;
+      if (productId == null) {
+        throw Exception('Product ID not provided');
+      }
+
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final product = await apiService.getProduct(productId);
+      
+      if (mounted) {
+        setState(() {
+          _product = product;
+          _isLoading = false;
+        });
+        _loadMessages();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadMessages() async {
+    if (_product == null) return;
+
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final messages = await _messageService.getMessages(_product!.id);
       
       if (mounted) {
         setState(() {
@@ -63,7 +93,7 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
+    if (_messageController.text.trim().isEmpty || _product == null) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
@@ -82,17 +112,10 @@ class _MessageScreenState extends State<MessageScreen> {
         throw Exception('User not found');
       }
 
-      if (widget.product == null) {
-        throw Exception('Product not found');
-      }
-
-      final productUserId = widget.product.userId;
+      final productUserId = _product!.userId;
       if (productUserId == null) {
         throw Exception('Product owner not found');
       }
-
-      print('Current user ID: ${currentUser.id}');
-      print('Product owner ID: $productUserId');
 
       if (currentUser.id == productUserId) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,12 +128,10 @@ class _MessageScreenState extends State<MessageScreen> {
       }
 
       final message = await _messageService.sendMessage(
-        widget.product.id,
+        _product!.id,
         productUserId,
         _messageController.text.trim(),
       );
-
-      print('Sent message: ${message.toJson()}');
 
       setState(() {
         _messages.add(message);
@@ -119,7 +140,6 @@ class _MessageScreenState extends State<MessageScreen> {
       _messageController.clear();
       _scrollToBottom();
     } catch (e) {
-      print('Error sending message: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error sending message: $e'),
@@ -141,89 +161,90 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null || _product == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 60),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage ?? 'Product not found',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadProduct,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final authProvider = Provider.of<AuthProvider>(context);
     final currentUserId = authProvider.currentUser?.id;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat about ${widget.product.title}'),
+        title: Text('Chat about ${_product!.title}'),
       ),
       body: Column(
         children: [
           Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error_outline, color: Colors.red, size: 60),
-                            const SizedBox(height: 16),
-                            Text(
-                              _errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: _loadMessages,
-                              child: const Text('Retry'),
-                            ),
-                          ],
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final message = _messages[index];
+                final isMe = message.senderId == currentUserId;
+
+                return Align(
+                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isMe ? Colors.blue : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          message.message,
+                          style: TextStyle(
+                            color: isMe ? Colors.white : Colors.black,
+                          ),
                         ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          final message = _messages[index];
-                          // Debug print to check message details
-                          print('Message details:');
-                          print('  Message ID: ${message.id}');
-                          print('  Sender ID: ${message.senderId}');
-                          print('  Current User ID: $currentUserId');
-                          print('  Sender Name: ${message.senderName}');
-                          print('  Message: ${message.message}');
-
-                          final isMe = message.senderId == currentUserId;
-
-                          return Align(
-                            alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.all(12),
-                              constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width * 0.7,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isMe ? Colors.blue : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    message.message,
-                                    style: TextStyle(
-                                      color: isMe ? Colors.white : Colors.black,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${message.senderName ?? 'Unknown'} • ${_formatTime(message.createdAt)}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isMe ? Colors.white70 : Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${message.senderName ?? 'Unknown'} • ${_formatTime(message.createdAt)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isMe ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
           Container(
             padding: const EdgeInsets.all(8),

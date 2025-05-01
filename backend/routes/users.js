@@ -4,6 +4,78 @@ import { authenticateToken } from './auth.js';
 
 const router = express.Router();
 
+// Get user profile
+router.get('/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const result = await pool.query(
+      `SELECT 
+        u.id,
+        u.username,
+        u.email,
+        c.name as location,
+        u.created_at,
+        COALESCE(AVG(r.rating), 0) as average_rating
+      FROM users u
+      LEFT JOIN cities c ON u.city_id = c.id
+      LEFT JOIN reviews r ON r.reviewed_id = u.id
+      WHERE u.id = $1
+      GROUP BY u.id, c.name`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user rating
+router.get('/:userId/rating', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const result = await pool.query(
+      `SELECT COALESCE(AVG(rating), 0) as average_rating 
+       FROM reviews 
+       WHERE reviewed_id = $1`,
+      [userId]
+    );
+
+    res.json({ average_rating: parseFloat(result.rows[0].average_rating) });
+  } catch (error) {
+    console.error('Error fetching user rating:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user products
+router.get('/:userId/products', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const result = await pool.query(
+      `SELECT p.*, c.name as category_name 
+       FROM products p 
+       LEFT JOIN categories c ON p.category_id = c.id 
+       WHERE p.user_id = $1 
+       ORDER BY p.created_at DESC`,
+      [userId]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching user products:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get user profile by ID
 router.get('/:id', async (req, res) => {
   try {

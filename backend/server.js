@@ -18,6 +18,7 @@ import usersRouter from './routes/users.js';
 import messagesRouter from './routes/messages.js';
 import vehicleRoutes from './routes/vehicles.js';
 import garageRoutes from './routes/garage.js';
+import partsRoutes from './routes/parts.js';
 
 // Load environment variables
 dotenv.config();
@@ -93,6 +94,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/messages', authenticateToken, messagesRouter);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/garage', garageRoutes);
+app.use('/api/parts', partsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
