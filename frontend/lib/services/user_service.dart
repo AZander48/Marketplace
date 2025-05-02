@@ -1,16 +1,19 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' as foundation;
+import '../config/environment.dart';
 
 class UserService {
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
-  static const Duration timeout = Duration(seconds: 30);
+  static const Duration timeout = Duration(seconds: 10);
 
   Future<Map<String, dynamic>> getUserProfile(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/users/$userId'),
-      ).timeout(timeout);
+        Uri.parse('${EnvironmentConfig.apiUrl}/users/$userId'),
+      ).timeout(timeout, onTimeout: () {
+        throw TimeoutException('Request timed out. Please check your internet connection and try again.');
+      });
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
@@ -19,6 +22,9 @@ class UserService {
       }
     } catch (e) {
       foundation.debugPrint('Error loading user profile: $e');
+      if (e is TimeoutException) {
+        throw Exception('Request timed out. Please check your internet connection and try again.');
+      }
       throw Exception('Error loading user profile: $e');
     }
   }
@@ -26,8 +32,10 @@ class UserService {
   Future<double> getUserRating(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/users/$userId/rating'),
-      ).timeout(timeout);
+        Uri.parse('${EnvironmentConfig.apiUrl}/users/$userId/rating'),
+      ).timeout(timeout, onTimeout: () {
+        throw TimeoutException('Request timed out. Please check your internet connection and try again.');
+      });
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -37,6 +45,9 @@ class UserService {
       }
     } catch (e) {
       foundation.debugPrint('Error loading user rating: $e');
+      if (e is TimeoutException) {
+        throw Exception('Request timed out. Please check your internet connection and try again.');
+      }
       return 0.0;
     }
   }

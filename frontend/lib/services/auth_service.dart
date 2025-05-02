@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import '../config/environment.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
-  static const Duration timeout = Duration(seconds: 30);
+  static const Duration timeout = Duration(seconds: 10); // Reduced timeout
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
 
@@ -29,13 +30,15 @@ class AuthService {
     try {
       debugPrint('Attempting login with identifier: $identifier');
       final response = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
+        Uri.parse('${EnvironmentConfig.apiUrl}/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'identifier': identifier,
           'password': password,
         }),
-      ).timeout(timeout);
+      ).timeout(timeout, onTimeout: () {
+        throw Exception('Login request timed out. Please check your internet connection and try again.');
+      });
 
       debugPrint('Login response status: ${response.statusCode}');
       debugPrint('Login response body: ${response.body}');
@@ -53,6 +56,9 @@ class AuthService {
       }
     } catch (e) {
       debugPrint('Login error: $e');
+      if (e is TimeoutException) {
+        throw Exception('Login request timed out. Please check your internet connection and try again.');
+      }
       throw Exception('Error logging in: $e');
     }
   }
@@ -62,14 +68,16 @@ class AuthService {
     try {
       debugPrint('Attempting registration with: name=$name, email=$email');
       final response = await http.post(
-        Uri.parse('$baseUrl/auth/register'),
+        Uri.parse('${EnvironmentConfig.apiUrl}/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': name,
           'email': email,
           'password': password,
         }),
-      ).timeout(timeout);
+      ).timeout(timeout, onTimeout: () {
+        throw Exception('Registration request timed out. Please check your internet connection and try again.');
+      });
 
       debugPrint('Registration response status: ${response.statusCode}');
       debugPrint('Registration response body: ${response.body}');
@@ -86,6 +94,9 @@ class AuthService {
       }
     } catch (e) {
       debugPrint('Registration error: $e');
+      if (e is TimeoutException) {
+        throw Exception('Registration request timed out. Please check your internet connection and try again.');
+      }
       throw Exception('Error registering: $e');
     }
   }

@@ -1,18 +1,32 @@
 import express from 'express';
-import { pool } from '../config/database.js';
+import { pool, query } from '../config/database.js';
 
 const router = express.Router();
 
 // Get all categories
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query(
+    console.log('Fetching all categories...');
+    const result = await query(
       'SELECT * FROM categories ORDER BY name'
     );
+    console.log(`Successfully fetched ${result.rows.length} categories`);
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching categories:', error);
-    res.status(500).json({ message: 'Error fetching categories' });
+    // Send more specific error message based on the error type
+    if (error.code === '3D000') {
+      res.status(500).json({ message: 'Database not found. Please check database configuration.' });
+    } else if (error.code === '28P01') {
+      res.status(500).json({ message: 'Database authentication failed. Please check credentials.' });
+    } else if (error.code === '42P01') {
+      res.status(500).json({ message: 'Categories table not found. Please check if database is properly initialized.' });
+    } else {
+      res.status(500).json({ 
+        message: 'Error fetching categories',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
   }
 });
 

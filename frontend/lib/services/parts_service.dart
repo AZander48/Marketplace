@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/garage_item.dart';
+import '../config/environment.dart';
 
 class PartsService {
-  static const String baseUrl = 'http://10.0.2.2:3000'; // Use 10.0.2.2 for Android emulator
+  static String baseUrl = EnvironmentConfig.apiUrl; // Use 10.0.2.2 for Android emulator
 
   Future<List<Map<String, dynamic>>> getPartsByCategoryAndVehicle({
     required int categoryId,

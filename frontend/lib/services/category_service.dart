@@ -3,31 +3,25 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' as foundation;
 import '../models/category.dart';
 import '../models/product.dart';
+import '../config/environment.dart';
+import '../services/api_service.dart';
 
 class CategoryService {
-  static const String baseUrl = 'http://10.0.2.2:3000/api'; // Use 10.0.2.2 for Android emulator
-  static const Duration timeout = Duration(seconds: 30);
+  final ApiService _apiService;
+  
+  CategoryService({ApiService? apiService}) 
+      : _apiService = apiService ?? ApiService();
 
   // Get all categories
   Future<List<Category>> getCategories() async {
     try {
-      foundation.debugPrint('Fetching categories from: $baseUrl/categories');
-      final response = await http.get(
-        Uri.parse('$baseUrl/categories'),
-      ).timeout(timeout);
-
-      foundation.debugPrint('Categories response status: ${response.statusCode}');
-      foundation.debugPrint('Categories response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Category.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load categories: ${response.statusCode}');
-      }
+      foundation.debugPrint('Fetching categories...');
+      final categories = await _apiService.getList('/categories', Category.fromJson);
+      foundation.debugPrint('Categories fetched successfully');
+      return categories;
     } catch (e) {
       foundation.debugPrint('Error loading categories: $e');
-      throw Exception('Error loading categories: $e');
+      rethrow;
     }
   }
 
@@ -49,15 +43,11 @@ class CategoryService {
           'vehicleId': vehicleId.toString(),
       };
 
-      final url = Uri.parse('$baseUrl/categories/$categoryId/products')
-          .replace(queryParameters: queryParams);
-      
-      foundation.debugPrint('Fetching category products from: $url');
-      
-      final response = await http.get(url).timeout(timeout);
-
-      foundation.debugPrint('Category products response status: ${response.statusCode}');
-      foundation.debugPrint('Category products response body: ${response.body}');
+      final response = await _apiService.makeRequest(
+        'categories/$categoryId/products',
+        method: 'GET',
+        queryParams: queryParams,
+      );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -72,7 +62,7 @@ class CategoryService {
       }
     } catch (e) {
       foundation.debugPrint('Error loading category products: $e');
-      throw Exception('Error loading category products: $e');
+      rethrow;
     }
   }
 } 
