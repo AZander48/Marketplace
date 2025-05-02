@@ -1,11 +1,11 @@
-# marketplace_app
+# Marketplace App
 
-Marketplace app project for IxIxI Creator Labs.
+A full-stack marketplace application built with Flutter and Node.js.
 
 ## Project Structure
 
 This project consists of two main parts:
-- Flutter frontend application (`/lib`)
+- Flutter frontend application (`/frontend`)
 - Node.js backend server (`/backend`)
 
 ## Prerequisites
@@ -32,7 +32,16 @@ npm install
 cp .env_example .env
 ```
 
-4. Update the `.env` file with your database credentials and other configuration.
+4. Update the `.env` file with your database credentials:
+```
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=marketplace_db
+DB_PASSWORD=your_password
+DB_PORT=5432
+PORT=3000
+JWT_SECRET=your-secret-jwt-key
+```
 
 5. Start the backend server:
 ```bash
@@ -43,7 +52,10 @@ The server will run on `http://localhost:3000` by default.
 
 ## Frontend Setup
 
-1. Make sure you have Flutter installed and set up on your machine.
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
 
 2. Install Flutter dependencies:
 ```bash
@@ -62,14 +74,25 @@ flutter run
 - API routes are located in `/backend/routes`
 - Database queries are in `/backend/sql`
 - Configuration files are in `/backend/config`
+- Environment variables are managed through `.env` file
 
 ### Frontend Development
 - The app follows a clean architecture pattern
-- Screens are located in `/lib/screens`
-- Reusable widgets are in `/lib/widgets`
-- API services are in `/lib/services`
-- State management is handled in `/lib/providers`
-- Data models are in `/lib/models`
+- Screens are located in `/frontend/lib/screens`
+- Reusable widgets are in `/frontend/lib/widgets`
+- API services are in `/frontend/lib/services`
+- State management is handled in `/frontend/lib/providers`
+- Data models are in `/frontend/lib/models`
+
+## Database Setup
+
+1. Install PostgreSQL if you haven't already
+2. Create a new database:
+```sql
+CREATE DATABASE marketplace_db;
+```
+
+3. Run the SQL scripts in `/backend/sql` to set up the database schema and initial data
 
 ## Additional Resources
 
@@ -77,6 +100,7 @@ flutter run
 - [Express.js Documentation](https://expressjs.com/)
 - [Flutter Cookbook](https://docs.flutter.dev/cookbook)
 - [Flutter Widget Catalog](https://docs.flutter.dev/development/ui/widgets)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 
 ## Contributing
 
