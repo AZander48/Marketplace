@@ -8,6 +8,7 @@ import '../services/category_service.dart';
 import '../providers/location_provider.dart';
 import '../models/category.dart';
 import '../models/location.dart';
+import '../config/environment.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -72,7 +73,7 @@ class AddProductScreenState extends State<AddProductScreen> {
   }
 
   Future<void> _pickAndUploadImage() async {
-    final imageService = ImageService(baseUrl: 'http://10.0.2.2:3000');
+    final imageService = ImageService(baseUrl: EnvironmentConfig.apiUrl);
     setState(() => _isLoading = true);
     
     try {

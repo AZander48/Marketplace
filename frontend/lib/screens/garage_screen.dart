@@ -25,28 +25,44 @@ class _GarageScreenState extends State<GarageScreen> {
   }
 
   Future<void> _loadGarageItems() async {
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final user = authProvider.currentUser;
-      
-      if (user != null) {
-        final items = await _garageService.getUserGarageItems(user.id);
-        final primary = await _garageService.getPrimaryVehicle(user.id);
+    int retryCount = 0;
+    const maxRetries = 3;
+    while (retryCount < maxRetries) {
+      try {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final user = authProvider.currentUser;
         
-        if (mounted) {
-          setState(() {
-            _garageItems = items;
-            _primaryVehicle = primary;
-            _isLoading = false;
-          });
+        if (user != null) {
+          // Load both requests in parallel
+          final results = await Future.wait([
+            _garageService.getUserGarageItems(user.id),
+            _garageService.getPrimaryVehicle(user.id),
+          ]);
+          final items = results[0] as List<GarageItem>;
+          final primary = results[1] as GarageItem?;
+          
+          if (mounted) {
+            setState(() {
+              _garageItems = items;
+              _primaryVehicle = primary;
+              _isLoading = false;
+              _error = null;
+            });
+          }
         }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
+        return;
+      } catch (e) {
+        retryCount++;
+        if (retryCount == maxRetries) {
+          if (mounted) {
+            setState(() {
+              _error = 'Failed to load garage after $maxRetries attempts. Please try again.';
+              _isLoading = false;
+            });
+          }
+        } else {
+          await Future.delayed(Duration(seconds: 1 * retryCount));
+        }
       }
     }
   }

@@ -459,259 +459,259 @@ INSERT INTO vehicle_submodels (name, model_id) VALUES
 
 -- Insert sample users with properly hashed passwords
 INSERT INTO users (username, email, password_hash, city_id, profile_image_url, bio, phone_number, is_verified) VALUES
-('john_doe', 'john@example.com', crypt('password123', gen_salt('bf')), 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Tech enthusiast and gadget collector', '+1 212-555-1234', true),
-('jane_smith', 'jane@example.com', crypt('password123', gen_salt('bf')), 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Fashion designer and vintage collector', '+1 310-555-5678', true),
-('mike_wilson', 'mike@example.com', crypt('password123', gen_salt('bf')), 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Sports equipment seller and fitness trainer', '+1 312-555-9012', true),
-('sarah_jones', 'sarah@example.com', crypt('password123', gen_salt('bf')), 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Art collector and gallery owner', '+1 713-555-3456', true),
-('alex_chen', 'alex@example.com', crypt('password123', gen_salt('bf')), 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Car enthusiast and mechanic', '+1 415-555-7890', true),
-('emma_rodriguez', 'emma@example.com', crypt('password123', gen_salt('bf')), 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Vintage car restorer', '+1 305-555-2345', true),
-('david_kim', 'david@example.com', crypt('password123', gen_salt('bf')), 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Auto parts specialist', '+1 206-555-6789', true),
-('lisa_patel', 'lisa@example.com', crypt('password123', gen_salt('bf')), 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Classic car collector', '+1 404-555-0123', true),
-('james_wilson', 'james@example.com', crypt('password123', gen_salt('bf')), 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Performance parts dealer', '+1 503-555-4567', true),
-('maria_garcia', 'maria@example.com', crypt('password123', gen_salt('bf')), 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Auto repair shop owner', '+1 602-555-8901', true),
-('robert_taylor', 'robert@example.com', crypt('password123', gen_salt('bf')), 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Motorcycle parts specialist', '+1 303-555-2345', true),
-('sophie_martin', 'sophie@example.com', crypt('password123', gen_salt('bf')), 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Car audio system expert', '+1 617-555-6789', true),
-('michael_brown', 'michael@example.com', crypt('password123', gen_salt('bf')), 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Truck parts dealer', '+1 214-555-0123', true),
-('anna_kowalski', 'anna@example.com', crypt('password123', gen_salt('bf')), 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Electric vehicle specialist', '+1 312-555-4567', true),
-('thomas_nguyen', 'thomas@example.com', crypt('password123', gen_salt('bf')), 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Import car parts dealer', '+1 408-555-8901', true),
-('olivia_lee', 'olivia@example.com', crypt('password123', gen_salt('bf')), 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Luxury car parts specialist', '+1 212-555-2345', true),
-('william_clark', 'william@example.com', crypt('password123', gen_salt('bf')), 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Off-road parts dealer', '+1 303-555-6789', true),
-('isabella_moore', 'isabella@example.com', crypt('password123', gen_salt('bf')), 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Vintage motorcycle collector', '+1 415-555-0123', true),
-('daniel_white', 'daniel@example.com', crypt('password123', gen_salt('bf')), 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Performance tuning expert', '+1 305-555-4567', true),
-('emily_davis', 'emily@example.com', crypt('password123', gen_salt('bf')), 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 'Auto body parts specialist', '+1 206-555-8901', true);
+('john_doe', 'john@example.com', crypt('password123', gen_salt('bf')), 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Tech enthusiast and gadget collector', '+1 212-555-1234', true),
+('jane_smith', 'jane@example.com', crypt('password123', gen_salt('bf')), 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Fashion designer and vintage collector', '+1 310-555-5678', true),
+('mike_wilson', 'mike@example.com', crypt('password123', gen_salt('bf')), 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Sports equipment seller and fitness trainer', '+1 312-555-9012', true),
+('sarah_jones', 'sarah@example.com', crypt('password123', gen_salt('bf')), 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Art collector and gallery owner', '+1 713-555-3456', true),
+('alex_chen', 'alex@example.com', crypt('password123', gen_salt('bf')), 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Car enthusiast and mechanic', '+1 415-555-7890', true),
+('emma_rodriguez', 'emma@example.com', crypt('password123', gen_salt('bf')), 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Vintage car restorer', '+1 305-555-2345', true),
+('david_kim', 'david@example.com', crypt('password123', gen_salt('bf')), 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Auto parts specialist', '+1 206-555-6789', true),
+('lisa_patel', 'lisa@example.com', crypt('password123', gen_salt('bf')), 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Classic car collector', '+1 404-555-0123', true),
+('james_wilson', 'james@example.com', crypt('password123', gen_salt('bf')), 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Performance parts dealer', '+1 503-555-4567', true),
+('maria_garcia', 'maria@example.com', crypt('password123', gen_salt('bf')), 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Auto repair shop owner', '+1 602-555-8901', true),
+('robert_taylor', 'robert@example.com', crypt('password123', gen_salt('bf')), 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Motorcycle parts specialist', '+1 303-555-2345', true),
+('sophie_martin', 'sophie@example.com', crypt('password123', gen_salt('bf')), 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Car audio system expert', '+1 617-555-6789', true),
+('michael_brown', 'michael@example.com', crypt('password123', gen_salt('bf')), 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Truck parts dealer', '+1 214-555-0123', true),
+('anna_kowalski', 'anna@example.com', crypt('password123', gen_salt('bf')), 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Electric vehicle specialist', '+1 312-555-4567', true),
+('thomas_nguyen', 'thomas@example.com', crypt('password123', gen_salt('bf')), 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Import car parts dealer', '+1 408-555-8901', true),
+('olivia_lee', 'olivia@example.com', crypt('password123', gen_salt('bf')), 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Luxury car parts specialist', '+1 212-555-2345', true),
+('william_clark', 'william@example.com', crypt('password123', gen_salt('bf')), 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Off-road parts dealer', '+1 303-555-6789', true),
+('isabella_moore', 'isabella@example.com', crypt('password123', gen_salt('bf')), 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Vintage motorcycle collector', '+1 415-555-0123', true),
+('daniel_white', 'daniel@example.com', crypt('password123', gen_salt('bf')), 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Performance tuning expert', '+1 305-555-4567', true),
+('emily_davis', 'emily@example.com', crypt('password123', gen_salt('bf')), 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 'Auto body parts specialist', '+1 206-555-8901', true);
 
 -- Insert sample products
 INSERT INTO products (user_id, title, description, price, category_id, condition, city_id, image_url) VALUES
 -- Electronics (Category 1)
-(1, 'iPhone 13 Pro', 'Like new, used for 2 months', 899.99, 1, 'Like New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'MacBook Pro 2021', '16GB RAM, 512GB SSD', 1299.99, 1, 'Like New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Sony WH-1000XM4', 'Noise cancelling headphones', 299.99, 1, 'New', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Samsung Galaxy S21', 'Unlocked, perfect condition', 699.99, 1, 'Like New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'iPad Pro 12.9', '2021 model, 256GB', 899.99, 1, 'New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'iPhone 13 Pro', 'Like new, used for 2 months', 899.99, 1, 'Like New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'MacBook Pro 2021', '16GB RAM, 512GB SSD', 1299.99, 1, 'Like New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Sony WH-1000XM4', 'Noise cancelling headphones', 299.99, 1, 'New', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Samsung Galaxy S21', 'Unlocked, perfect condition', 699.99, 1, 'Like New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'iPad Pro 12.9', '2021 model, 256GB', 899.99, 1, 'New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Fashion (Category 2)
-(6, 'Leather Jacket', 'Genuine leather, size M', 199.99, 2, 'Like New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Designer Watch', 'Swiss made, automatic', 599.99, 2, 'New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Running Shoes', 'Nike Air Max, size 10', 129.99, 2, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Designer Bag', 'Louis Vuitton, authentic', 1299.99, 2, 'Like New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Sunglasses', 'Ray-Ban Aviator', 149.99, 2, 'New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'Leather Jacket', 'Genuine leather, size M', 199.99, 2, 'Like New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Designer Watch', 'Swiss made, automatic', 599.99, 2, 'New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Running Shoes', 'Nike Air Max, size 10', 129.99, 2, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Designer Bag', 'Louis Vuitton, authentic', 1299.99, 2, 'Like New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Sunglasses', 'Ray-Ban Aviator', 149.99, 2, 'New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Home & Garden (Category 3)
-(11, 'Coffee Table', 'Modern design, glass top', 299.99, 3, 'Like New', 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(12, 'Garden Tools Set', 'Complete set, 12 pieces', 79.99, 3, 'New', 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(13, 'Outdoor Furniture', 'Patio set, 6 pieces', 499.99, 3, 'Like New', 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(14, 'Plant Collection', 'Indoor plants, 5 varieties', 89.99, 3, 'New', 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(15, 'Smart Home Hub', 'Google Nest Hub', 99.99, 3, 'New', 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(11, 'Coffee Table', 'Modern design, glass top', 299.99, 3, 'Like New', 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(12, 'Garden Tools Set', 'Complete set, 12 pieces', 79.99, 3, 'New', 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(13, 'Outdoor Furniture', 'Patio set, 6 pieces', 499.99, 3, 'Like New', 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(14, 'Plant Collection', 'Indoor plants, 5 varieties', 89.99, 3, 'New', 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(15, 'Smart Home Hub', 'Google Nest Hub', 99.99, 3, 'New', 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Auto Parts (Category 10)
-(16, 'Engine Block', 'V8 engine block, rebuilt', 1999.99, 10, 'Used', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Transmission', 'Automatic transmission, low miles', 1499.99, 10, 'Used', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'Suspension Kit', 'Complete suspension upgrade', 899.99, 10, 'New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Brake System', 'Complete brake system, new', 599.99, 10, 'New', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Electrical System', 'Complete wiring harness', 399.99, 10, 'New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'Engine Block', 'V8 engine block, rebuilt', 1999.99, 10, 'Used', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Transmission', 'Automatic transmission, low miles', 1499.99, 10, 'Used', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'Suspension Kit', 'Complete suspension upgrade', 899.99, 10, 'New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Brake System', 'Complete brake system, new', 599.99, 10, 'New', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Electrical System', 'Complete wiring harness', 399.99, 10, 'New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Engine Parts (Category 11)
-(1, 'Pistons Set', 'Forged pistons, 4 cylinders', 499.99, 11, 'New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Crankshaft', 'Billet crankshaft, balanced', 899.99, 11, 'New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Camshaft', 'Performance camshaft', 399.99, 11, 'New', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Valve Set', 'Titanium valves, complete set', 299.99, 11, 'New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Engine Bearings', 'Main and rod bearings, set', 149.99, 11, 'New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Pistons Set', 'Forged pistons, 4 cylinders', 499.99, 11, 'New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Crankshaft', 'Billet crankshaft, balanced', 899.99, 11, 'New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Camshaft', 'Performance camshaft', 399.99, 11, 'New', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Valve Set', 'Titanium valves, complete set', 299.99, 11, 'New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Engine Bearings', 'Main and rod bearings, set', 149.99, 11, 'New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Transmission Parts (Category 12)
-(6, 'Clutch Kit', 'Performance clutch kit', 499.99, 12, 'New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Gear Set', 'Close ratio gear set', 799.99, 12, 'New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Flywheel', 'Lightweight flywheel', 299.99, 12, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Shift Kit', 'Performance shift kit', 199.99, 12, 'New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Transmission Mount', 'Polyurethane mount', 49.99, 12, 'New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'Clutch Kit', 'Performance clutch kit', 499.99, 12, 'New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Gear Set', 'Close ratio gear set', 799.99, 12, 'New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Flywheel', 'Lightweight flywheel', 299.99, 12, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Shift Kit', 'Performance shift kit', 199.99, 12, 'New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Transmission Mount', 'Polyurethane mount', 49.99, 12, 'New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Suspension Parts (Category 13)
-(11, 'Coilover Kit', 'Adjustable coilover kit', 1299.99, 13, 'New', 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(12, 'Sway Bar Set', 'Front and rear sway bars', 299.99, 13, 'New', 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(13, 'Control Arms', 'Adjustable control arms', 399.99, 13, 'New', 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(14, 'Shock Absorbers', 'Performance shocks, set of 4', 599.99, 13, 'New', 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(15, 'Spring Set', 'Lowering springs, set of 4', 249.99, 13, 'New', 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(11, 'Coilover Kit', 'Adjustable coilover kit', 1299.99, 13, 'New', 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(12, 'Sway Bar Set', 'Front and rear sway bars', 299.99, 13, 'New', 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(13, 'Control Arms', 'Adjustable control arms', 399.99, 13, 'New', 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(14, 'Shock Absorbers', 'Performance shocks, set of 4', 599.99, 13, 'New', 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(15, 'Spring Set', 'Lowering springs, set of 4', 249.99, 13, 'New', 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Brake Parts (Category 14)
-(16, 'Big Brake Kit', '6-piston caliper kit', 1499.99, 14, 'New', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Brake Pads', 'Performance brake pads, set', 199.99, 14, 'New', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'Brake Rotors', 'Slotted rotors, set of 4', 399.99, 14, 'New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Brake Lines', 'Stainless steel lines, set', 149.99, 14, 'New', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Master Cylinder', 'Performance master cylinder', 299.99, 14, 'New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'Big Brake Kit', '6-piston caliper kit', 1499.99, 14, 'New', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Brake Pads', 'Performance brake pads, set', 199.99, 14, 'New', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'Brake Rotors', 'Slotted rotors, set of 4', 399.99, 14, 'New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Brake Lines', 'Stainless steel lines, set', 149.99, 14, 'New', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Master Cylinder', 'Performance master cylinder', 299.99, 14, 'New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Electrical Parts (Category 15)
-(1, 'Alternator', 'High output alternator', 399.99, 15, 'New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Starter Motor', 'Performance starter', 299.99, 15, 'New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Battery', 'High performance battery', 199.99, 15, 'New', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'ECU', 'Performance ECU, tuned', 899.99, 15, 'New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Ignition System', 'Complete ignition system', 499.99, 15, 'New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Alternator', 'High output alternator', 399.99, 15, 'New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Starter Motor', 'Performance starter', 299.99, 15, 'New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Battery', 'High performance battery', 199.99, 15, 'New', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'ECU', 'Performance ECU, tuned', 899.99, 15, 'New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Ignition System', 'Complete ignition system', 499.99, 15, 'New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Interior Parts (Category 16)
-(6, 'Racing Seats', 'Pair of racing seats', 799.99, 16, 'New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Steering Wheel', 'Performance steering wheel', 299.99, 16, 'New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Gauges Set', 'Performance gauges, set of 3', 399.99, 16, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Shift Knob', 'Custom shift knob', 49.99, 16, 'New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Floor Mats', 'Custom fit floor mats', 89.99, 16, 'New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'Racing Seats', 'Pair of racing seats', 799.99, 16, 'New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Steering Wheel', 'Performance steering wheel', 299.99, 16, 'New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Gauges Set', 'Performance gauges, set of 3', 399.99, 16, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Shift Knob', 'Custom shift knob', 49.99, 16, 'New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Floor Mats', 'Custom fit floor mats', 89.99, 16, 'New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Exterior Parts (Category 17)
-(11, 'Body Kit', 'Complete body kit', 1299.99, 17, 'New', 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(12, 'Hood', 'Carbon fiber hood', 699.99, 17, 'New', 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(13, 'Bumper', 'Front bumper, new', 399.99, 17, 'New', 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(14, 'Side Skirts', 'Pair of side skirts', 299.99, 17, 'New', 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(15, 'Spoiler', 'Rear spoiler', 199.99, 17, 'New', 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(11, 'Body Kit', 'Complete body kit', 1299.99, 17, 'New', 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(12, 'Hood', 'Carbon fiber hood', 699.99, 17, 'New', 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(13, 'Bumper', 'Front bumper, new', 399.99, 17, 'New', 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(14, 'Side Skirts', 'Pair of side skirts', 299.99, 17, 'New', 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(15, 'Spoiler', 'Rear spoiler', 199.99, 17, 'New', 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Wheels & Tires (Category 18)
-(16, 'Wheel Set', 'Set of 4 alloy wheels', 999.99, 18, 'New', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Tire Set', 'Performance tires, set of 4', 799.99, 18, 'New', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'Wheel Spacers', 'Set of 4 wheel spacers', 149.99, 18, 'New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Wheel Lugs', 'Set of 20 wheel lugs', 49.99, 18, 'New', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Tire Pressure Sensors', 'Set of 4 sensors', 199.99, 18, 'New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'Wheel Set', 'Set of 4 alloy wheels', 999.99, 18, 'New', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Tire Set', 'Performance tires, set of 4', 799.99, 18, 'New', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'Wheel Spacers', 'Set of 4 wheel spacers', 149.99, 18, 'New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Wheel Lugs', 'Set of 20 wheel lugs', 49.99, 18, 'New', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Tire Pressure Sensors', 'Set of 4 sensors', 199.99, 18, 'New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Performance Parts (Category 19)
-(1, 'Turbo Kit', 'Complete turbo kit', 2999.99, 19, 'New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Supercharger', 'Roots type supercharger', 2499.99, 19, 'New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Nitrous Kit', 'Wet nitrous system', 899.99, 19, 'New', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Headers', 'Performance headers', 499.99, 19, 'New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Exhaust System', 'Complete exhaust system', 799.99, 19, 'New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Turbo Kit', 'Complete turbo kit', 2999.99, 19, 'New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Supercharger', 'Roots type supercharger', 2499.99, 19, 'New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Nitrous Kit', 'Wet nitrous system', 899.99, 19, 'New', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Headers', 'Performance headers', 499.99, 19, 'New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Exhaust System', 'Complete exhaust system', 799.99, 19, 'New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Maintenance Parts (Category 20)
-(6, 'Oil Filter Kit', 'Complete oil filter kit', 49.99, 20, 'New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Air Filter', 'Performance air filter', 39.99, 20, 'New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Fuel Filter', 'High flow fuel filter', 29.99, 20, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Spark Plugs', 'Set of 8 spark plugs', 49.99, 20, 'New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Timing Belt Kit', 'Complete timing belt kit', 199.99, 20, 'New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'Oil Filter Kit', 'Complete oil filter kit', 49.99, 20, 'New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Air Filter', 'Performance air filter', 39.99, 20, 'New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Fuel Filter', 'High flow fuel filter', 29.99, 20, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Spark Plugs', 'Set of 8 spark plugs', 49.99, 20, 'New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Timing Belt Kit', 'Complete timing belt kit', 199.99, 20, 'New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Musical Instruments (Category 21)
-(16, 'Fender Stratocaster', 'Electric guitar, sunburst finish', 799.99, 21, 'Like New', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Yamaha Piano', 'Upright piano, excellent condition', 2999.99, 21, 'Used', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'Roland Electronic Drum Kit', 'TD-17KV, barely used', 899.99, 21, 'Like New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Saxophone', 'Professional alto sax, gold lacquer', 1299.99, 21, 'Used', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Violin', 'Handcrafted, 4/4 size', 599.99, 21, 'Like New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'Fender Stratocaster', 'Electric guitar, sunburst finish', 799.99, 21, 'Like New', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Yamaha Piano', 'Upright piano, excellent condition', 2999.99, 21, 'Used', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'Roland Electronic Drum Kit', 'TD-17KV, barely used', 899.99, 21, 'Like New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Saxophone', 'Professional alto sax, gold lacquer', 1299.99, 21, 'Used', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Violin', 'Handcrafted, 4/4 size', 599.99, 21, 'Like New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Art & Crafts (Category 22)
-(1, 'Professional Paint Set', 'Acrylic paints, 24 colors', 89.99, 22, 'New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Pottery Wheel', 'Electric, with tools', 299.99, 22, 'Like New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Sewing Machine', 'Brother, computerized', 199.99, 22, 'Used', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Calligraphy Set', 'Complete set with ink and paper', 49.99, 22, 'New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Woodworking Tools', 'Professional set, 15 pieces', 399.99, 22, 'Like New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Professional Paint Set', 'Acrylic paints, 24 colors', 89.99, 22, 'New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Pottery Wheel', 'Electric, with tools', 299.99, 22, 'Like New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Sewing Machine', 'Brother, computerized', 199.99, 22, 'Used', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Calligraphy Set', 'Complete set with ink and paper', 49.99, 22, 'New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Woodworking Tools', 'Professional set, 15 pieces', 399.99, 22, 'Like New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Jewelry (Category 23)
-(6, 'Diamond Ring', '14k gold, 1 carat', 2999.99, 23, 'New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Pearl Necklace', 'Freshwater pearls, 18 inches', 299.99, 23, 'Like New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Gold Bracelet', '18k gold, Italian made', 899.99, 23, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Silver Earrings', 'Sterling silver, handcrafted', 149.99, 23, 'New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Vintage Watch', 'Swiss movement, 1960s', 599.99, 23, 'Used', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'Diamond Ring', '14k gold, 1 carat', 2999.99, 23, 'New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Pearl Necklace', 'Freshwater pearls, 18 inches', 299.99, 23, 'Like New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Gold Bracelet', '18k gold, Italian made', 899.99, 23, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Silver Earrings', 'Sterling silver, handcrafted', 149.99, 23, 'New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Vintage Watch', 'Swiss movement, 1960s', 599.99, 23, 'Used', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Collectibles (Category 24)
-(11, 'Rare Book Collection', 'First editions, set of 5', 799.99, 24, 'Used', 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(12, 'Signed Novel', 'Signed by author, hardcover', 199.99, 24, 'Like New', 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(13, 'Textbook Set', 'Engineering textbooks, 8 books', 299.99, 24, 'Used', 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(14, 'Comic Books', 'Vintage collection, 20 issues', 499.99, 24, 'Used', 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(15, 'Cookbook Collection', 'Gourmet cooking, 12 books', 149.99, 24, 'Like New', 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(11, 'Rare Book Collection', 'First editions, set of 5', 799.99, 24, 'Used', 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(12, 'Signed Novel', 'Signed by author, hardcover', 199.99, 24, 'Like New', 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(13, 'Textbook Set', 'Engineering textbooks, 8 books', 299.99, 24, 'Used', 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(14, 'Comic Books', 'Vintage collection, 20 issues', 499.99, 24, 'Used', 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(15, 'Cookbook Collection', 'Gourmet cooking, 12 books', 149.99, 24, 'Like New', 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Sports Equipment (Category 25)
-(16, 'Golf Clubs', 'Complete set with bag', 899.99, 25, 'Like New', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Mountain Bike', 'Full suspension, carbon frame', 1999.99, 25, 'Like New', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'Tennis Racket', 'Professional grade', 199.99, 25, 'New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Snowboard', 'All-mountain, 160cm', 399.99, 25, 'Used', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Basketball Hoop', 'In-ground system', 299.99, 25, 'New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'Golf Clubs', 'Complete set with bag', 899.99, 25, 'Like New', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Mountain Bike', 'Full suspension, carbon frame', 1999.99, 25, 'Like New', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'Tennis Racket', 'Professional grade', 199.99, 25, 'New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Snowboard', 'All-mountain, 160cm', 399.99, 25, 'Used', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Basketball Hoop', 'In-ground system', 299.99, 25, 'New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Food & Beverages (Category 26)
-(1, 'Wine Collection', '6 bottles, premium selection', 299.99, 26, 'New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Coffee Maker', 'Espresso machine, professional', 399.99, 26, 'Like New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Spice Set', 'Gourmet spices, 24 varieties', 89.99, 26, 'New', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Cookware Set', 'Stainless steel, 12 pieces', 299.99, 26, 'New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Tea Collection', 'Premium loose leaf, 20 varieties', 79.99, 26, 'New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Wine Collection', '6 bottles, premium selection', 299.99, 26, 'New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Coffee Maker', 'Espresso machine, professional', 399.99, 26, 'Like New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Spice Set', 'Gourmet spices, 24 varieties', 89.99, 26, 'New', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Cookware Set', 'Stainless steel, 12 pieces', 299.99, 26, 'New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Tea Collection', 'Premium loose leaf, 20 varieties', 79.99, 26, 'New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Baby & Kids (Category 27)
-(6, 'Stroller', 'Lightweight, travel system', 299.99, 27, 'Like New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Crib', 'Convertible, modern design', 399.99, 27, 'New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Toy Set', 'Educational toys, 20 pieces', 89.99, 27, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Baby Monitor', 'Video monitor, wireless', 149.99, 27, 'Like New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Children''s Books', 'Collection, 50 books', 99.99, 27, 'New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'Stroller', 'Lightweight, travel system', 299.99, 27, 'Like New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Crib', 'Convertible, modern design', 399.99, 27, 'New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Toy Set', 'Educational toys, 20 pieces', 89.99, 27, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Baby Monitor', 'Video monitor, wireless', 149.99, 27, 'Like New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Children''s Books', 'Collection, 50 books', 99.99, 27, 'New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Health & Fitness (Category 28)
-(11, 'Treadmill', 'Commercial grade, folding', 1299.99, 28, 'Like New', 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(12, 'Weight Set', 'Complete free weights, 300 lbs', 499.99, 28, 'Like New', 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(13, 'Exercise Bike', 'Stationary bike, digital display', 399.99, 28, 'Like New', 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(14, 'Rowing Machine', 'Water resistance rower', 699.99, 28, 'New', 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(15, 'Fitness Tracker', 'Smart watch, heart rate monitor', 199.99, 28, 'Like New', 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(11, 'Treadmill', 'Commercial grade, folding', 1299.99, 28, 'Like New', 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(12, 'Weight Set', 'Complete free weights, 300 lbs', 499.99, 28, 'Like New', 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(13, 'Exercise Bike', 'Stationary bike, digital display', 399.99, 28, 'Like New', 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(14, 'Rowing Machine', 'Water resistance rower', 699.99, 28, 'New', 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(15, 'Fitness Tracker', 'Smart watch, heart rate monitor', 199.99, 28, 'Like New', 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Garden & Outdoor (Category 29)
-(16, 'Lawn Mower', 'Self-propelled, electric', 399.99, 29, 'Like New', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Patio Furniture', 'Complete set, weather resistant', 899.99, 29, 'Like New', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'BBQ Grill', 'Gas grill, 4 burners', 499.99, 29, 'New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Garden Tools', 'Complete set, 15 pieces', 149.99, 29, 'Like New', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Outdoor Lighting', 'Solar powered, set of 12', 99.99, 29, 'New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'Lawn Mower', 'Self-propelled, electric', 399.99, 29, 'Like New', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Patio Furniture', 'Complete set, weather resistant', 899.99, 29, 'Like New', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'BBQ Grill', 'Gas grill, 4 burners', 499.99, 29, 'New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Garden Tools', 'Complete set, 15 pieces', 149.99, 29, 'Like New', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Outdoor Lighting', 'Solar powered, set of 12', 99.99, 29, 'New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Tools & Hardware (Category 30)
-(1, 'Power Tool Set', 'Cordless, 5 pieces', 399.99, 30, 'New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Tool Chest', 'Professional, 41 inches', 299.99, 30, 'Like New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Ladder', 'Extension, 24 feet', 199.99, 30, 'New', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Workbench', 'Heavy duty, with vise', 249.99, 30, 'Like New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Measuring Tools', 'Professional set, 10 pieces', 89.99, 30, 'New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Power Tool Set', 'Cordless, 5 pieces', 399.99, 30, 'New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Tool Chest', 'Professional, 41 inches', 299.99, 30, 'Like New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Ladder', 'Extension, 24 feet', 199.99, 30, 'New', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Workbench', 'Heavy duty, with vise', 249.99, 30, 'Like New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Measuring Tools', 'Professional set, 10 pieces', 89.99, 30, 'New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Photography (Category 31)
-(6, 'DSLR Camera', 'Canon EOS, with lens', 899.99, 31, 'Like New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Camera Lens', '70-200mm, f/2.8', 1299.99, 31, 'New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Tripod', 'Professional, carbon fiber', 199.99, 31, 'Like New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Lighting Kit', 'Studio lights, 3 pieces', 299.99, 31, 'New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Camera Bag', 'Professional, waterproof', 149.99, 31, 'Like New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'DSLR Camera', 'Canon EOS, with lens', 899.99, 31, 'Like New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Camera Lens', '70-200mm, f/2.8', 1299.99, 31, 'New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Tripod', 'Professional, carbon fiber', 199.99, 31, 'Like New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Lighting Kit', 'Studio lights, 3 pieces', 299.99, 31, 'New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Camera Bag', 'Professional, waterproof', 149.99, 31, 'Like New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Computers & Accessories (Category 32)
-(11, 'Gaming PC', 'RTX 3080, 32GB RAM', 1999.99, 32, 'Like New', 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(12, 'Monitor', '4K, 32 inch', 399.99, 32, 'New', 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(13, 'Keyboard', 'Mechanical, RGB', 149.99, 32, 'Like New', 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(14, 'Mouse', 'Gaming, wireless', 79.99, 32, 'New', 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(15, 'External SSD', '1TB, USB 3.1', 129.99, 32, 'New', 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(11, 'Gaming PC', 'RTX 3080, 32GB RAM', 1999.99, 32, 'Like New', 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(12, 'Monitor', '4K, 32 inch', 399.99, 32, 'New', 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(13, 'Keyboard', 'Mechanical, RGB', 149.99, 32, 'Like New', 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(14, 'Mouse', 'Gaming, wireless', 79.99, 32, 'New', 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(15, 'External SSD', '1TB, USB 3.1', 129.99, 32, 'New', 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Gaming (Category 33)
-(16, 'PS5 Console', 'Digital edition, with games', 499.99, 33, 'Like New', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Xbox Series X', 'With controller and games', 499.99, 33, 'New', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'Nintendo Switch', 'OLED model, with games', 349.99, 33, 'Like New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Gaming Headset', 'Surround sound, wireless', 149.99, 33, 'New', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Gaming Chair', 'Ergonomic, with footrest', 299.99, 33, 'Like New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'PS5 Console', 'Digital edition, with games', 499.99, 33, 'Like New', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Xbox Series X', 'With controller and games', 499.99, 33, 'New', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'Nintendo Switch', 'OLED model, with games', 349.99, 33, 'Like New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Gaming Headset', 'Surround sound, wireless', 149.99, 33, 'New', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Gaming Chair', 'Ergonomic, with footrest', 299.99, 33, 'Like New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Antiques (Category 34)
-(1, 'Vintage Clock', 'Grandfather clock, 1800s', 1999.99, 34, 'Used', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Antique Desk', 'Mahogany, 1900s', 899.99, 34, 'Used', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Vintage Camera', 'Leica, 1950s', 1299.99, 34, 'Used', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Antique Vase', 'Chinese, 1800s', 599.99, 34, 'Used', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Vintage Radio', 'Philco, 1940s', 299.99, 34, 'Used', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Vintage Clock', 'Grandfather clock, 1800s', 1999.99, 34, 'Used', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Antique Desk', 'Mahogany, 1900s', 899.99, 34, 'Used', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Vintage Camera', 'Leica, 1950s', 1299.99, 34, 'Used', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Antique Vase', 'Chinese, 1800s', 599.99, 34, 'Used', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Vintage Radio', 'Philco, 1940s', 299.99, 34, 'Used', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Party Supplies (Category 35)
-(6, 'Party Tent', '10x20 feet, with sides', 299.99, 35, 'New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Table Set', '6 tables, 24 chairs', 499.99, 35, 'Like New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Decoration Kit', 'Complete party set', 89.99, 35, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Sound System', 'Portable PA system', 399.99, 35, 'Like New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Catering Equipment', 'Complete set, 50 pieces', 699.99, 35, 'New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(6, 'Party Tent', '10x20 feet, with sides', 299.99, 35, 'New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Table Set', '6 tables, 24 chairs', 499.99, 35, 'Like New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Decoration Kit', 'Complete party set', 89.99, 35, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Sound System', 'Portable PA system', 399.99, 35, 'Like New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Catering Equipment', 'Complete set, 50 pieces', 699.99, 35, 'New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Travel Gear (Category 36)
-(11, 'Luggage Set', '3 pieces, hardshell', 299.99, 36, 'New', 11, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(12, 'Backpack', 'Travel, 40L', 129.99, 36, 'Like New', 12, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(13, 'Travel Pillow', 'Memory foam, compact', 29.99, 36, 'New', 13, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(14, 'Portable Charger', '20000mAh, fast charging', 49.99, 36, 'New', 14, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(15, 'Travel Adapter', 'Universal, 150 countries', 39.99, 36, 'New', 15, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(11, 'Luggage Set', '3 pieces, hardshell', 299.99, 36, 'New', 11, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(12, 'Backpack', 'Travel, 40L', 129.99, 36, 'Like New', 12, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(13, 'Travel Pillow', 'Memory foam, compact', 29.99, 36, 'New', 13, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(14, 'Portable Charger', '20000mAh, fast charging', 49.99, 36, 'New', 14, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(15, 'Travel Adapter', 'Universal, 150 countries', 39.99, 36, 'New', 15, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Pet Supplies (Category 37)
-(16, 'Dog House', 'Weatherproof, large size', 199.99, 37, 'New', 16, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(17, 'Cat Tree', 'Multi-level, with toys', 149.99, 37, 'Like New', 17, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(18, 'Aquarium', '55 gallon, complete set', 299.99, 37, 'New', 18, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(19, 'Pet Carrier', 'Airline approved, large', 79.99, 37, 'New', 19, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(20, 'Pet Bed', 'Memory foam, washable', 89.99, 37, 'Like New', 20, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(16, 'Dog House', 'Weatherproof, large size', 199.99, 37, 'New', 16, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(17, 'Cat Tree', 'Multi-level, with toys', 149.99, 37, 'Like New', 17, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(18, 'Aquarium', '55 gallon, complete set', 299.99, 37, 'New', 18, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(19, 'Pet Carrier', 'Airline approved, large', 79.99, 37, 'New', 19, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(20, 'Pet Bed', 'Memory foam, washable', 89.99, 37, 'Like New', 20, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Home Improvement (Category 38)
-(1, 'Paint Set', 'Interior, 5 gallons', 149.99, 38, 'New', 1, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(2, 'Flooring', 'Hardwood, 200 sq ft', 899.99, 38, 'New', 2, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(3, 'Light Fixtures', 'Set of 6, modern design', 299.99, 38, 'New', 3, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(4, 'Bathroom Vanity', 'Double sink, marble top', 599.99, 38, 'New', 4, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(5, 'Kitchen Faucet', 'Pull-down, brushed nickel', 199.99, 38, 'New', 5, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
+(1, 'Paint Set', 'Interior, 5 gallons', 149.99, 38, 'New', 1, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(2, 'Flooring', 'Hardwood, 200 sq ft', 899.99, 38, 'New', 2, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(3, 'Light Fixtures', 'Set of 6, modern design', 299.99, 38, 'New', 3, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(4, 'Bathroom Vanity', 'Double sink, marble top', 599.99, 38, 'New', 4, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(5, 'Kitchen Faucet', 'Pull-down, brushed nickel', 199.99, 38, 'New', 5, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
 
 -- Industrial & Scientific (Category 39)
-(6, 'Microscope', 'Professional, 1000x', 599.99, 39, 'Like New', 6, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(7, 'Lab Equipment', 'Complete set, 20 pieces', 999.99, 39, 'New', 7, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(8, 'Measuring Tools', 'Precision set, 10 pieces', 299.99, 39, 'New', 8, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(9, 'Safety Equipment', 'Complete set, 15 pieces', 199.99, 39, 'New', 9, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png'),
-(10, 'Industrial Scale', 'Digital, 1000lb capacity', 399.99, 39, 'Like New', 10, 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png');
+(6, 'Microscope', 'Professional, 1000x', 599.99, 39, 'Like New', 6, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(7, 'Lab Equipment', 'Complete set, 20 pieces', 999.99, 39, 'New', 7, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(8, 'Measuring Tools', 'Precision set, 10 pieces', 299.99, 39, 'New', 8, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(9, 'Safety Equipment', 'Complete set, 15 pieces', 199.99, 39, 'New', 9, 'http://10.0.2.2:3000/uploads/blue_moon_small.png'),
+(10, 'Industrial Scale', 'Digital, 1000lb capacity', 399.99, 39, 'Like New', 10, 'http://10.0.2.2:3000/uploads/blue_moon_small.png');
 
 -- Insert orders for sample transactions
 INSERT INTO orders (id, buyer_id, seller_id, product_id, status) VALUES
@@ -1434,110 +1434,110 @@ INSERT INTO messages (sender_id, receiver_id, product_id, message) VALUES
 
 -- Insert default garage items
 INSERT INTO garage_items (user_id, name, description, image_url, vehicle_type_id, vehicle_year, vehicle_make_id, vehicle_model_id, vehicle_submodel_id, is_primary) VALUES
-(1, '2021 Honda Civic', '2021 Honda Civic, 2.0L, automatic transmission, 182 hp', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 2021, 1, 1, 1, true),
-(2, '2019 Toyota Camry', '2019 Toyota Camry, 3.5L, automatic transmission, 301 hp', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 2019, 2, 2, 2, false),
-(3, '2020 Tesla Model 3', '2020 Tesla Model 3, 283 hp', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 2020, 3, 3, 3, false),
-(4, '2018 BMW 320i', '2018 BMW 320i, 2.0L, automatic transmission, 248 hp', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 2018, 4, 4, 4, false);
+(1, '2021 Honda Civic', '2021 Honda Civic, 2.0L, automatic transmission, 182 hp', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 2021, 1, 1, 1, true),
+(2, '2019 Toyota Camry', '2019 Toyota Camry, 3.5L, automatic transmission, 301 hp', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 2019, 2, 2, 2, false),
+(3, '2020 Tesla Model 3', '2020 Tesla Model 3, 283 hp', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 2020, 3, 3, 3, false),
+(4, '2018 BMW 320i', '2018 BMW 320i, 2.0L, automatic transmission, 248 hp', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 2018, 4, 4, 4, false);
 
 INSERT INTO garage_items (user_id, name, description, image_url, vehicle_type_id, vehicle_make_id, vehicle_model_id, vehicle_submodel_id, vehicle_year, is_primary) VALUES
 -- John Doe's vehicles (Tech enthusiast with modern cars)
-(1, '2021 Honda Civic', '2021 Honda Civic, 2.0L, automatic transmission, 182 hp', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 1, 1, 1, 2021, true),
-(1, '2020 Tesla Model 3', '2020 Tesla Model 3, Dual Motor, Long Range', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 3, 3, 3, 2020, false),
-(1, '2019 BMW 330i', '2019 BMW 330i, M Sport Package', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 4, 4, 4, 2019, false),
+(1, '2021 Honda Civic', '2021 Honda Civic, 2.0L, automatic transmission, 182 hp', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 1, 1, 1, 2021, true),
+(1, '2020 Tesla Model 3', '2020 Tesla Model 3, Dual Motor, Long Range', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 3, 3, 3, 2020, false),
+(1, '2019 BMW 330i', '2019 BMW 330i, M Sport Package', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 4, 4, 4, 2019, false),
 
 -- Jane Smith's vehicles (Fashion designer with luxury cars)
-(2, '2022 Lexus RX', '2022 Lexus RX 350, Premium Package', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 17, 17, 17, 2022, true),
-(2, '2021 Mercedes-Benz C-Class', '2021 Mercedes-Benz C300, AMG Line', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 16, 16, 16, 2021, false),
-(2, '2020 Porsche 911', '2020 Porsche 911 Carrera S', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 21, 21, 21, 2020, false),
+(2, '2022 Lexus RX', '2022 Lexus RX 350, Premium Package', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 17, 17, 17, 2022, true),
+(2, '2021 Mercedes-Benz C-Class', '2021 Mercedes-Benz C300, AMG Line', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 16, 16, 16, 2021, false),
+(2, '2020 Porsche 911', '2020 Porsche 911 Carrera S', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 21, 21, 21, 2020, false),
 
 -- Mike Wilson's vehicles (Sports equipment seller with SUVs)
-(3, '2022 Ford Explorer', '2022 Ford Explorer ST, 3.0L EcoBoost', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 9, 9, 9, 2022, true),
-(3, '2021 Chevrolet Tahoe', '2021 Chevrolet Tahoe Z71', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 10, 10, 10, 2021, false),
-(3, '2020 Jeep Grand Cherokee', '2020 Jeep Grand Cherokee Trailhawk', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 22, 22, 22, 2020, false),
+(3, '2022 Ford Explorer', '2022 Ford Explorer ST, 3.0L EcoBoost', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 9, 9, 9, 2022, true),
+(3, '2021 Chevrolet Tahoe', '2021 Chevrolet Tahoe Z71', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 10, 10, 10, 2021, false),
+(3, '2020 Jeep Grand Cherokee', '2020 Jeep Grand Cherokee Trailhawk', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 22, 22, 22, 2020, false),
 
 -- Sarah Jones's vehicles (Art collector with classic cars)
-(4, '1967 Ford Mustang', '1967 Ford Mustang Fastback, 289 V8', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 9, 9, 9, 1967, true),
-(4, '1970 Chevrolet Camaro', '1970 Chevrolet Camaro SS, 350 V8', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 10, 10, 10, 1970, false),
-(4, '1969 Dodge Charger', '1969 Dodge Charger R/T, 440 Magnum', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 11, 11, 11, 1969, false),
+(4, '1967 Ford Mustang', '1967 Ford Mustang Fastback, 289 V8', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 9, 9, 9, 1967, true),
+(4, '1970 Chevrolet Camaro', '1970 Chevrolet Camaro SS, 350 V8', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 10, 10, 10, 1970, false),
+(4, '1969 Dodge Charger', '1969 Dodge Charger R/T, 440 Magnum', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 11, 11, 11, 1969, false),
 
 -- Alex Chen's vehicles (Car enthusiast with performance cars)
-(5, '2023 Toyota Supra', '2023 Toyota Supra 3.0, Premium', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 2, 2, 2, 2023, true),
-(5, '2022 Nissan GT-R', '2022 Nissan GT-R Premium', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 12, 12, 12, 2022, false),
-(5, '2021 Audi RS7', '2021 Audi RS7 Sportback', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 15, 15, 15, 2021, false),
+(5, '2023 Toyota Supra', '2023 Toyota Supra 3.0, Premium', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 2, 2, 2, 2023, true),
+(5, '2022 Nissan GT-R', '2022 Nissan GT-R Premium', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 12, 12, 12, 2022, false),
+(5, '2021 Audi RS7', '2021 Audi RS7 Sportback', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 15, 15, 15, 2021, false),
 
 -- Emma Rodriguez's vehicles (Vintage car restorer)
-(6, '1957 Chevrolet Bel Air', '1957 Chevrolet Bel Air, 283 V8', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 10, 10, 10, 1957, true),
-(6, '1963 Corvette Stingray', '1963 Corvette Stingray Split Window', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 10, 10, 10, 1963, false),
-(6, '1955 Ford Thunderbird', '1955 Ford Thunderbird, 292 V8', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 9, 9, 9, 1955, false),
+(6, '1957 Chevrolet Bel Air', '1957 Chevrolet Bel Air, 283 V8', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 10, 10, 10, 1957, true),
+(6, '1963 Corvette Stingray', '1963 Corvette Stingray Split Window', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 10, 10, 10, 1963, false),
+(6, '1955 Ford Thunderbird', '1955 Ford Thunderbird, 292 V8', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 9, 9, 9, 1955, false),
 
 -- David Kim's vehicles (Auto parts specialist with trucks)
-(7, '2023 Ford F-150', '2023 Ford F-150 Raptor', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 9, 9, 9, 2023, true),
-(7, '2022 Ram 2500', '2022 Ram 2500 Power Wagon', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 24, 24, 24, 2022, false),
-(7, '2021 GMC Sierra', '2021 GMC Sierra AT4', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 23, 23, 23, 2021, false),
+(7, '2023 Ford F-150', '2023 Ford F-150 Raptor', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 9, 9, 9, 2023, true),
+(7, '2022 Ram 2500', '2022 Ram 2500 Power Wagon', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 24, 24, 24, 2022, false),
+(7, '2021 GMC Sierra', '2021 GMC Sierra AT4', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 23, 23, 23, 2021, false),
 
 -- Lisa Patel's vehicles (Classic car collector)
-(8, '1969 Pontiac GTO', '1969 Pontiac GTO Judge', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 25, 25, 25, 1969, true),
-(8, '1971 Plymouth Hemi Cuda', '1971 Plymouth Hemi Cuda', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 26, 26, 26, 1971, false),
-(8, '1968 Chevrolet Corvette', '1968 Chevrolet Corvette Stingray', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 10, 10, 10, 1968, false),
+(8, '1969 Pontiac GTO', '1969 Pontiac GTO Judge', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 25, 25, 25, 1969, true),
+(8, '1971 Plymouth Hemi Cuda', '1971 Plymouth Hemi Cuda', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 26, 26, 26, 1971, false),
+(8, '1968 Chevrolet Corvette', '1968 Chevrolet Corvette Stingray', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 10, 10, 10, 1968, false),
 
 -- James Wilson's vehicles (Performance parts dealer)
-(9, '2023 Dodge Challenger', '2023 Dodge Challenger Hellcat Redeye', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 11, 11, 11, 2023, true),
-(9, '2022 Chevrolet Camaro', '2022 Chevrolet Camaro ZL1', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 10, 10, 10, 2022, false),
-(9, '2021 Ford Mustang', '2021 Ford Mustang GT500', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 9, 9, 9, 2021, false),
+(9, '2023 Dodge Challenger', '2023 Dodge Challenger Hellcat Redeye', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 11, 11, 11, 2023, true),
+(9, '2022 Chevrolet Camaro', '2022 Chevrolet Camaro ZL1', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 10, 10, 10, 2022, false),
+(9, '2021 Ford Mustang', '2021 Ford Mustang GT500', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 9, 9, 9, 2021, false),
 
 -- Maria Garcia's vehicles (Auto repair shop owner)
-(10, '2023 Toyota Tacoma', '2023 Toyota Tacoma TRD Pro', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 2, 2, 2, 2023, true),
-(10, '2022 Honda Ridgeline', '2022 Honda Ridgeline Black Edition', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 1, 1, 1, 2022, false),
-(10, '2021 Ford Ranger', '2021 Ford Ranger FX4', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 9, 9, 9, 2021, false),
+(10, '2023 Toyota Tacoma', '2023 Toyota Tacoma TRD Pro', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 2, 2, 2, 2023, true),
+(10, '2022 Honda Ridgeline', '2022 Honda Ridgeline Black Edition', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 1, 1, 1, 2022, false),
+(10, '2021 Ford Ranger', '2021 Ford Ranger FX4', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 9, 9, 9, 2021, false),
 
 -- Robert Taylor's vehicles (Motorcycle parts specialist)
-(11, '2023 Harley-Davidson', '2023 Harley-Davidson Street Bob', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 2, 5, 5, 5, 2023, true),
-(11, '2022 Kawasaki Ninja', '2022 Kawasaki Ninja ZX-10R', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 2, 6, 6, 6, 2022, false),
-(11, '2021 Yamaha R1', '2021 Yamaha R1M', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 2, 8, 8, 8, 2021, false),
+(11, '2023 Harley-Davidson', '2023 Harley-Davidson Street Bob', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 2, 5, 5, 5, 2023, true),
+(11, '2022 Kawasaki Ninja', '2022 Kawasaki Ninja ZX-10R', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 2, 6, 6, 6, 2022, false),
+(11, '2021 Yamaha R1', '2021 Yamaha R1M', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 2, 8, 8, 8, 2021, false),
 
 -- Sophie Martin's vehicles (Car audio system expert)
-(12, '2023 Lexus IS', '2023 Lexus IS 500 F Sport', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 17, 17, 17, 2023, true),
-(12, '2022 Acura TLX', '2022 Acura TLX Type S', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 28, 28, 28, 2022, false),
-(12, '2021 Genesis G70', '2021 Genesis G70 3.3T', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 30, 30, 30, 2021, false),
+(12, '2023 Lexus IS', '2023 Lexus IS 500 F Sport', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 17, 17, 17, 2023, true),
+(12, '2022 Acura TLX', '2022 Acura TLX Type S', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 28, 28, 28, 2022, false),
+(12, '2021 Genesis G70', '2021 Genesis G70 3.3T', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 30, 30, 30, 2021, false),
 
 -- Michael Brown's vehicles (Truck parts dealer)
-(13, '2023 Chevrolet Silverado', '2023 Chevrolet Silverado 2500HD', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 10, 10, 10, 2023, true),
-(13, '2022 Ford F-250', '2022 Ford F-250 Super Duty', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 9, 9, 9, 2022, false),
-(13, '2021 GMC Sierra', '2021 GMC Sierra 3500HD', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 3, 23, 23, 23, 2021, false),
+(13, '2023 Chevrolet Silverado', '2023 Chevrolet Silverado 2500HD', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 10, 10, 10, 2023, true),
+(13, '2022 Ford F-250', '2022 Ford F-250 Super Duty', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 9, 9, 9, 2022, false),
+(13, '2021 GMC Sierra', '2021 GMC Sierra 3500HD', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 3, 23, 23, 23, 2021, false),
 
 -- Anna Kowalski's vehicles (Electric vehicle specialist)
-(14, '2023 Tesla Model S', '2023 Tesla Model S Plaid', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 3, 3, 3, 2023, true),
-(14, '2022 Porsche Taycan', '2022 Porsche Taycan Turbo S', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 21, 21, 21, 2022, false),
-(14, '2021 Audi e-tron', '2021 Audi e-tron GT', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 15, 15, 15, 2021, false),
+(14, '2023 Tesla Model S', '2023 Tesla Model S Plaid', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 3, 3, 3, 2023, true),
+(14, '2022 Porsche Taycan', '2022 Porsche Taycan Turbo S', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 21, 21, 21, 2022, false),
+(14, '2021 Audi e-tron', '2021 Audi e-tron GT', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 15, 15, 15, 2021, false),
 
 -- Thomas Nguyen's vehicles (Import car parts dealer)
-(15, '2023 Subaru WRX', '2023 Subaru WRX STI', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 13, 13, 13, 2023, true),
-(15, '2022 Mitsubishi Lancer', '2022 Mitsubishi Lancer Evolution', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 31, 31, 31, 2022, false),
-(15, '2021 Nissan Skyline', '2021 Nissan Skyline GT-R', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 12, 12, 12, 2021, false),
+(15, '2023 Subaru WRX', '2023 Subaru WRX STI', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 13, 13, 13, 2023, true),
+(15, '2022 Mitsubishi Lancer', '2022 Mitsubishi Lancer Evolution', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 31, 31, 31, 2022, false),
+(15, '2021 Nissan Skyline', '2021 Nissan Skyline GT-R', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 12, 12, 12, 2021, false),
 
 -- Olivia Lee's vehicles (Luxury car parts specialist)
-(16, '2023 Mercedes-Benz S-Class', '2023 Mercedes-Benz S580', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 16, 16, 16, 2023, true),
-(16, '2022 BMW 7 Series', '2022 BMW 760i', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 4, 4, 4, 2022, false),
-(16, '2021 Lexus LS', '2021 Lexus LS 500', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 17, 17, 17, 2021, false),
+(16, '2023 Mercedes-Benz S-Class', '2023 Mercedes-Benz S580', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 16, 16, 16, 2023, true),
+(16, '2022 BMW 7 Series', '2022 BMW 760i', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 4, 4, 4, 2022, false),
+(16, '2021 Lexus LS', '2021 Lexus LS 500', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 17, 17, 17, 2021, false),
 
 -- William Clark's vehicles (Off-road parts dealer)
-(17, '2023 Jeep Wrangler', '2023 Jeep Wrangler Rubicon 392', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 22, 22, 22, 2023, true),
-(17, '2022 Ford Bronco', '2022 Ford Bronco Wildtrak', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 9, 9, 9, 2022, false),
-(17, '2021 Toyota 4Runner', '2021 Toyota 4Runner TRD Pro', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 2, 2, 2, 2021, false),
+(17, '2023 Jeep Wrangler', '2023 Jeep Wrangler Rubicon 392', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 22, 22, 22, 2023, true),
+(17, '2022 Ford Bronco', '2022 Ford Bronco Wildtrak', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 9, 9, 9, 2022, false),
+(17, '2021 Toyota 4Runner', '2021 Toyota 4Runner TRD Pro', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 2, 2, 2, 2021, false),
 
 -- Isabella Moore's vehicles (Vintage motorcycle collector)
-(18, '1969 Harley-Davidson', '1969 Harley-Davidson Electra Glide', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 2, 5, 5, 5, 1969, true),
-(18, '1972 Triumph', '1972 Triumph Bonneville', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 2, 32, 32, 32, 1972, false),
-(18, '1975 Ducati', '1975 Ducati 750SS', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 2, 33, 33, 33, 1975, false),
+(18, '1969 Harley-Davidson', '1969 Harley-Davidson Electra Glide', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 2, 5, 5, 5, 1969, true),
+(18, '1972 Triumph', '1972 Triumph Bonneville', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 2, 32, 32, 32, 1972, false),
+(18, '1975 Ducati', '1975 Ducati 750SS', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 2, 33, 33, 33, 1975, false),
 
 -- Daniel White's vehicles (Performance tuning expert)
-(19, '2023 BMW M3', '2023 BMW M3 Competition', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 4, 4, 4, 2023, true),
-(19, '2022 Audi RS3', '2022 Audi RS3 Sportback', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 15, 15, 15, 2022, false),
-(19, '2021 Mercedes-AMG', '2021 Mercedes-AMG C63 S', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 16, 16, 16, 2021, false),
+(19, '2023 BMW M3', '2023 BMW M3 Competition', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 4, 4, 4, 2023, true),
+(19, '2022 Audi RS3', '2022 Audi RS3 Sportback', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 15, 15, 15, 2022, false),
+(19, '2021 Mercedes-AMG', '2021 Mercedes-AMG C63 S', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 16, 16, 16, 2021, false),
 
 -- Emily Davis's vehicles (Auto body parts specialist)
-(20, '2023 Cadillac Escalade', '2023 Cadillac Escalade-V', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 26, 26, 26, 2023, true),
-(20, '2022 Lincoln Navigator', '2022 Lincoln Navigator Black Label', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 27, 27, 27, 2022, false),
-(20, '2021 Infiniti QX80', '2021 Infiniti QX80 Sensory', 'https://marketplace-backend-jv7c.onrender.com/uploads/blue_moon_small.png', 1, 29, 29, 29, 2021, false);
+(20, '2023 Cadillac Escalade', '2023 Cadillac Escalade-V', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 26, 26, 26, 2023, true),
+(20, '2022 Lincoln Navigator', '2022 Lincoln Navigator Black Label', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 27, 27, 27, 2022, false),
+(20, '2021 Infiniti QX80', '2021 Infiniti QX80 Sensory', 'http://10.0.2.2:3000/uploads/blue_moon_small.png', 1, 29, 29, 29, 2021, false);
 
 

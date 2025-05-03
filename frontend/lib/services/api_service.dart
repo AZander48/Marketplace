@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/product.dart';
@@ -7,11 +8,60 @@ import '../models/city.dart';
 import '../models/state.dart';
 import '../models/country.dart';
 import '../models/user.dart';
+import '../config/environment.dart';
+import '../config/performance_config.dart';
 
 class ApiService {
-  final String _baseUrl = 'http://10.0.2.2:3000/api';
-  static const Duration timeout = Duration(minutes: 2);
+  final http.Client _client;
+  
+  ApiService({http.Client? client}) : _client = client ?? http.Client() {
+    if (EnvironmentConfig.isProduction) {
+      _warmupServer();
+    }
+  }
+
+  // Use environment config for base URL
+  String get _baseUrl => EnvironmentConfig.apiUrl;
+
+  static const Duration timeout = Duration(seconds: 90); // Increased timeout
+  static const Duration retryDelay = Duration(seconds: 2);
+  static const int maxRetries = 3;
   static const String _tokenKey = 'auth_token';
+
+  // Server warmup
+  Future<void> _warmupServer() async {
+    try {
+      await _client
+          .get(Uri.parse('$_baseUrl/health'))
+          .timeout(const Duration(seconds: 30))
+          .catchError((_) {});
+    } catch (_) {
+      // Ignore errors during warmup
+    }
+  }
+
+  // Generic retry mechanism with exponential backoff
+  Future<T> _retryOperation<T>(Future<T> Function() operation) async {
+    int attempts = 0;
+    while (attempts < maxRetries) {
+      try {
+        if (attempts > 0) {
+          // Exponential backoff
+          await Future.delayed(retryDelay * (attempts + 1));
+        }
+        return await operation();
+      } on TimeoutException {
+        attempts++;
+        if (attempts == maxRetries) rethrow;
+        print('Timeout occurred, retrying (${attempts + 1}/$maxRetries)');
+      } on SocketException {
+        attempts++;
+        if (attempts == maxRetries) rethrow;
+        print('Network error, retrying (${attempts + 1}/$maxRetries)');
+      }
+    }
+    throw Exception('Operation failed after $maxRetries attempts');
+  }
 
   Future<Map<String, String>> getHeaders() async {
     final prefs = await SharedPreferences.getInstance();
@@ -51,52 +101,60 @@ class ApiService {
     }
   }
 
-  // Generic methods for different return types
+  // Update the get method to use retry mechanism
   Future<Map<String, dynamic>> get(String endpoint) async {
-    try {
-      final headers = await getHeaders();
-      final response = await http.get(
-        Uri.parse('$_baseUrl$endpoint'),
-        headers: headers,
-      ).timeout(timeout);
+    return _retryOperation(() async {
+      try {
+        final headers = await getHeaders();
+        final response = await _client
+            .get(
+              Uri.parse('$_baseUrl$endpoint'),
+              headers: headers,
+            )
+            .timeout(timeout);
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw _handleError(response.statusCode);
+        if (response.statusCode == 200) {
+          return json.decode(response.body);
+        } else {
+          throw _handleError(response.statusCode);
+        }
+      } catch (e) {
+        _handleException(e);
+        rethrow;
       }
-    } catch (e) {
-      _handleException(e);
-      rethrow;
-    }
+    });
   }
 
-  // Generic method for List responses
+  // Update getList method to use retry mechanism
   Future<List<T>> getList<T>(String endpoint, T Function(Map<String, dynamic>) fromJson) async {
-    try {
-      final headers = await getHeaders();
-      final response = await http.get(
-        Uri.parse('$_baseUrl$endpoint'),
-        headers: headers,
-      ).timeout(timeout);
+    return _retryOperation(() async {
+      try {
+        final headers = await getHeaders();
+        final response = await _client
+            .get(
+              Uri.parse('$_baseUrl$endpoint'),
+              headers: headers,
+            )
+            .timeout(timeout);
 
-      if (response.statusCode == 200) {
-        final dynamic data = json.decode(response.body);
-        if (data is List) {
-          return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
-        } else if (data is Map<String, dynamic>) {
-          final listData = data['data'] ?? [];
-          return (listData as List).map((json) => fromJson(json as Map<String, dynamic>)).toList();
+        if (response.statusCode == 200) {
+          final dynamic data = json.decode(response.body);
+          if (data is List) {
+            return data.map((json) => fromJson(json as Map<String, dynamic>)).toList();
+          } else if (data is Map<String, dynamic>) {
+            final listData = data['data'] ?? [];
+            return (listData as List).map((json) => fromJson(json as Map<String, dynamic>)).toList();
+          } else {
+            throw Exception('Unexpected response format');
+          }
         } else {
-          throw Exception('Unexpected response format');
+          throw _handleError(response.statusCode);
         }
-      } else {
-        throw _handleError(response.statusCode);
+      } catch (e) {
+        _handleException(e);
+        rethrow;
       }
-    } catch (e) {
-      _handleException(e);
-      rethrow;
-    }
+    });
   }
 
   // Generic method for single item responses
@@ -144,7 +202,9 @@ class ApiService {
   }
 
   void _handleException(dynamic e) {
-    if (e is http.ClientException) {
+    if (e is TimeoutException) {
+      throw 'Request timed out. The server might be starting up, please try again.';
+    } else if (e is http.ClientException) {
       throw 'Connection error: Please check if the server is running and accessible';
     } else if (e is FormatException) {
       throw 'Invalid response format from server';
@@ -335,4 +395,56 @@ class ApiService {
       rethrow;
     }
   }
+
+  // Authentication methods
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/login'),
+        body: json.encode({
+          'email': email,
+          'password': password
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        // Store the token
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_tokenKey, data['token']);
+        return data;
+      } else {
+        throw _handleError(response.statusCode);
+      }
+    } catch (e) {
+      _handleException(e);
+      rethrow;
+    }
+  }
+
+  // Generic request method
+  Future<http.Response> makeRequest(String endpoint, {
+    required String method,
+    Map<String, dynamic>? body,
+    Map<String, String>? queryParams,
+  }) async {
+    final uri = Uri.parse('$_baseUrl/$endpoint').replace(queryParameters: queryParams);
+    final headers = await getHeaders();
+
+    switch (method.toUpperCase()) {
+      case 'GET':
+        return _client.get(uri, headers: headers);
+      case 'POST':
+        return _client.post(uri, headers: headers, body: json.encode(body));
+      case 'PUT':
+        return _client.put(uri, headers: headers, body: json.encode(body));
+      case 'DELETE':
+        return _client.delete(uri, headers: headers);
+      default:
+        throw Exception('Unsupported HTTP method: $method');
+    }
+  }
+
+  // Add more API methods as needed...
 } 

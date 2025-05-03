@@ -3,12 +3,13 @@ import 'package:marketplace_app/screens/add_product_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/product_service.dart';
 import '../models/product.dart';
 import '../providers/location_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class SellScreen extends StatefulWidget {
-  final Product? product; // If null, we're adding a new product
+  final Product? product;
 
   const SellScreen({
     super.key,
@@ -28,9 +29,11 @@ class SellScreenState extends State<SellScreen> {
   final _stateController = TextEditingController();
   final _cityController = TextEditingController();
   final _authService = AuthService();
-  final bool _isLoading = false;
+  final _productService = ProductService();
+  bool _isLoading = false;
   List<Product> _userProducts = [];
   bool _isLoadingProducts = true;
+  String? _error;
 
   @override
   void initState() {
@@ -44,36 +47,53 @@ class SellScreenState extends State<SellScreen> {
       final locationProvider = Provider.of<LocationProvider>(context, listen: false);
       
       try {
-        // Always load countries first
-        await locationProvider.loadCountries();
-        
-        // If editing a product, load the full location hierarchy
-        if (widget.product?.cityId != null) {
-          if (!mounted) return;
-          final apiService = Provider.of<ApiService>(context, listen: false);
-          final city = await apiService.getCityById(widget.product!.cityId!);
-          
-          if (city != null) {
-            if (!mounted) return;
-            final state = await apiService.getStateById(city.stateId);
-            
-            if (state != null) {
-              // Load states for the country
-              await locationProvider.loadStates(state.countryId);
-              
-              // Load cities for the state
-              await locationProvider.loadCities(city.stateId);
-            }
+        // Load countries in parallel with products
+        locationProvider.loadCountries().catchError((e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error loading countries: $e')),
+            );
           }
+        });
+        
+        // If editing a product, load location data
+        if (widget.product?.cityId != null) {
+          _loadLocationData(widget.product!.cityId!);
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error loading location data: $e')),
+            SnackBar(content: Text('Error initializing location data: $e')),
           );
         }
       }
     });
+  }
+
+  Future<void> _loadLocationData(int cityId) async {
+    if (!mounted) return;
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    
+    try {
+      final city = await apiService.getCityById(cityId);
+      if (city == null || !mounted) return;
+      
+      final state = await apiService.getStateById(city.stateId);
+      if (state == null || !mounted) return;
+      
+      // Load states and cities in parallel
+      await Future.wait([
+        locationProvider.loadStates(state.countryId),
+        locationProvider.loadCities(city.stateId),
+      ]);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading location data: $e')),
+        );
+      }
+    }
   }
 
   void _initializeProductData() {
@@ -88,37 +108,42 @@ class SellScreenState extends State<SellScreen> {
     }
   }
 
-  @override
-  void didUpdateWidget(SellScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.product?.id != widget.product?.id) {
-      _initializeProductData();
-    }
-  }
-
   Future<void> _loadUserProducts() async {
-    try {
-      final currentUser = await _authService.getCurrentUser();
-      if (currentUser == null) return;
+    int retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        final currentUser = await _authService.getCurrentUser();
+        if (currentUser == null) return;
 
-      if (!mounted) return;
-      final apiService = Provider.of<ApiService>(context, listen: false);
-      final products = await apiService.getUserProducts(currentUser.id);
-      
-      if (mounted) {
-        setState(() {
-          _userProducts = products;
-          _isLoadingProducts = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingProducts = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading products: $e')),
-        );
+        if (!mounted) return;
+        final products = await _productService.getUserProducts(currentUser.id);
+        
+        if (mounted) {
+          setState(() {
+            _userProducts = products;
+            _isLoadingProducts = false;
+            _error = null;
+          });
+        }
+        return; // Success, exit the retry loop
+      } catch (e) {
+        retryCount++;
+        if (retryCount == maxRetries) {
+          if (mounted) {
+            setState(() {
+              _isLoadingProducts = false;
+              _error = 'Failed to load products after $maxRetries attempts. Please try again.';
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error loading products: $e')),
+            );
+          }
+        } else {
+          // Wait before retrying
+          await Future.delayed(Duration(seconds: 1 * retryCount));
+        }
       }
     }
   }
@@ -209,6 +234,30 @@ class SellScreenState extends State<SellScreen> {
       );
     }
 
+    if (_error != null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 60),
+              const SizedBox(height: 16),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadUserProducts,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (widget.product != null) {
       // Navigate to edit screen
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -243,7 +292,6 @@ class SellScreenState extends State<SellScreen> {
                           '/add',
                         ).then((newProduct) {
                           if (newProduct != null && mounted) {
-                            // Reload all products to ensure we have the latest data
                             _loadUserProducts();
                           }
                         });
@@ -264,7 +312,7 @@ class SellScreenState extends State<SellScreen> {
                 }
                 return _buildProductCard(_userProducts[index - 1]);
               },
-      ),
+            ),
     );
   }
 } 

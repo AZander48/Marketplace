@@ -25,16 +25,30 @@ import 'providers/auth_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/location_provider.dart';
 import 'services/location_service.dart';
+import 'config/environment.dart';
+import 'config/performance_config.dart';
 import 'models/user.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Optimize system settings
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
 
-  // Initialize services in a separate isolate
+  // Initialize performance optimizations
+  PerformanceConfig.optimizeMemory();
+
+  // Initialize services
   final httpClient = http.Client();
+  
+  // Create services with environment-based URLs
   final locationService = LocationService(
-    baseUrl: 'http://10.0.2.2:3000/api',
+    baseUrl: EnvironmentConfig.apiUrl,
     client: httpClient,
   );
 
@@ -43,9 +57,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
-        Provider<LocationService>(
-          create: (_) => locationService,
-        ),
+        Provider<LocationService>(create: (_) => locationService),
         ChangeNotifierProvider<LocationProvider>(
           create: (_) => LocationProvider(locationService),
         ),
@@ -103,7 +115,6 @@ class MyApp extends StatelessWidget {
           data: MediaQuery.of(context).copyWith(
             textScaler: const TextScaler.linear(1.0),
             alwaysUse24HourFormat: true,
-            viewInsets: MediaQuery.of(context).viewInsets,
           ),
           child: child!,
         );
@@ -121,6 +132,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => const SettingsScreen(),
         '/edit': (context) => const EditProductScreen(),
         '/category': (context) => const CategoryScreen(),
+        '/category/products': (context) => const CategoryScreen(),
         '/edit-profile': (context) => const EditProfileScreen(),
         '/register': (context) => const RegisterScreen(),
         '/garage': (context) => const GarageScreen(),
@@ -140,17 +152,19 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMixin {
   int _selectedIndex = 0;
   bool _isLoading = true;
   bool _isLoggedIn = false;
-
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const SearchScreen(),
-    const SellScreen(),
-    const ProfileScreen(),
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    SearchScreen(),
+    SellScreen(),
+    ProfileScreen(),
   ];
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -159,9 +173,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _initializeApp() async {
-    // Use Future.delayed to allow the UI to render first
-    await Future.delayed(Duration.zero);
-    
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -177,6 +188,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     if (_isLoading) {
       return const Scaffold(
         body: Center(
@@ -186,11 +199,13 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
-          // If trying to access Sell or Profile while not logged in, show login
           if ((index == 2 || index == 3) && !_isLoggedIn) {
             Navigator.pushNamed(
               context,
@@ -199,18 +214,15 @@ class _MainScreenState extends State<MainScreen> {
             ).then((result) {
               if (result == true && mounted) {
                 setState(() {
-                  _isLoggedIn = true;
                   _selectedIndex = index;
+                  _isLoggedIn = true;
                 });
               }
             });
           } else {
-            setState(() {
-              _selectedIndex = index;
-            });
+            setState(() => _selectedIndex = index);
           }
         },
-        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
