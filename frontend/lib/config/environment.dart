@@ -6,7 +6,7 @@ enum Environment {
 }
 
 class EnvironmentConfig {
-  static const Environment _currentEnvironment = Environment.development;  // Set to production
+  static const Environment _currentEnvironment = Environment.production;  // Set to production
 
   static const Map<Environment, String> _baseUrls = {
     Environment.development: 'http://10.0.2.2:3000',  // For Android emulator

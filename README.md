@@ -67,6 +67,79 @@ flutter pub get
 flutter run
 ```
 
+## Switching Between Localhost and Deployed Backend
+
+### Frontend Configuration
+
+1. Open the file `/frontend/lib/services/api_service.dart` (or equivalent configuration file)
+
+2. For localhost development:
+```dart
+// For Android Emulator with localhost backend
+static const String baseUrl = 'http://10.0.2.2:3000/api';
+
+// For iOS Simulator with localhost backend
+// static const String baseUrl = 'http://127.0.0.1:3000/api';
+
+// For physical device testing with local network
+// static const String baseUrl = 'http://192.168.1.X:3000/api';
+
+// For production deployed backend
+// static const String baseUrl = 'https://your-deployed-backend.com/api';
+```
+
+3. For production/deployed backend:
+```dart
+// For production deployed backend
+static const String baseUrl = 'https://your-deployed-backend.com/api';
+
+// Comment out other baseUrl options
+// static const String baseUrl = 'http://10.0.2.2:3000/api';
+```
+
+### Backend Deployment
+
+1. Deploy the backend to your preferred hosting service (Heroku, DigitalOcean, AWS, etc.)
+
+2. Update the database connection in `.env` for production:
+```
+DB_USER=production_user
+DB_HOST=production_host
+DB_NAME=production_db
+DB_PASSWORD=production_password
+DB_PORT=5432
+PORT=process.env.PORT
+JWT_SECRET=your-secret-jwt-key
+```
+
+3. For local testing with production database:
+```bash
+# Set the environment variable to use production config
+export NODE_ENV=production
+npm start
+```
+
+4. For local development with local database:
+```bash
+# Set the environment variable to use development config
+export NODE_ENV=development
+npm start
+```
+
+### Database Configuration
+
+1. For localhost development, use:
+```bash
+# Run the localhost version of the insert script
+psql -U postgres -d marketplace_db -f ./backend/sql/insert_data_localhost.sql
+```
+
+2. For production deployment, use:
+```bash
+# Run the production version of the insert script
+psql -U postgres -d marketplace_db -f ./backend/sql/insert_data.sql
+```
+
 ## Development
 
 ### Backend Development
