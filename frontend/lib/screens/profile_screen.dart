@@ -6,6 +6,8 @@ import '../models/product.dart';
 import '../models/garage_item.dart';
 import '../services/api_service.dart';
 import '../services/garage_service.dart';
+import '../services/product_service.dart';
+import '../services/auth_service.dart';
 import '../widgets/product_grid.dart';
 import '../widgets/primary_vehicle_card.dart';
 
@@ -17,8 +19,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final ApiService _apiService = ApiService();
+  final ProductService _productService = ProductService();
   final GarageService _garageService = GarageService();
+  final AuthService _authService = AuthService();
   List<Product> _userProducts = [];
   GarageItem? _primaryVehicle;
   bool _isLoading = true;
@@ -32,12 +35,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUserData() async {
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final user = authProvider.currentUser;
+      /*final authProvider = Provider.of<AuthProvider>(context, listen: false);*/
+      final currentUser = await _authService.getCurrentUser();
       
-      if (user != null) {
-        final products = await _apiService.getUserProducts(user.id);
-        final primaryVehicle = await _garageService.getPrimaryVehicle(user.id);
+      if (currentUser != null) {
+        final products = await _productService.getUserProducts(currentUser.id);
+        final primaryVehicle = await _garageService.getPrimaryVehicle(currentUser.id);
         
         if (mounted) {
           setState(() {

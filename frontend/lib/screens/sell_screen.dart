@@ -3,6 +3,7 @@ import 'package:marketplace_app/screens/add_product_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/product_service.dart';
 import '../models/product.dart';
 import '../providers/location_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -28,6 +29,7 @@ class SellScreenState extends State<SellScreen> {
   final _stateController = TextEditingController();
   final _cityController = TextEditingController();
   final _authService = AuthService();
+  final _productService = ProductService();
   bool _isLoading = false;
   List<Product> _userProducts = [];
   bool _isLoadingProducts = true;
@@ -116,8 +118,7 @@ class SellScreenState extends State<SellScreen> {
         if (currentUser == null) return;
 
         if (!mounted) return;
-        final apiService = Provider.of<ApiService>(context, listen: false);
-        final products = await apiService.getUserProducts(currentUser.id);
+        final products = await _productService.getUserProducts(currentUser.id);
         
         if (mounted) {
           setState(() {
